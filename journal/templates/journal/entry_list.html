@@ -1,0 +1,39 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}Все записи - Learning Journal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h1 class="mb-4">Мои записи</h1>
+        {% if entries %}
+            {% for entry in entries %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ entry.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <span class="badge bg-primary">{{ entry.category }}</span>
+                        {{ entry.created_at|date:"d F Y, H:i" }}
+                    </h6>
+                    <p class="card-text" style="white-space: pre-wrap;">{{ entry.content|truncatechars:150 }}</p>
+                    <a href="{% url 'journal:entry_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Записей пока нет. Создайте первую запись в <a href="/admin/">админке</a>!</p>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Категории</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Скоро здесь будет список категорий</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}Удалить запись - Learning Journal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>Удалить запись?</h4>
+            </div>
+            <div class="card-body">
+                <p>Вы уверены что хотите удалить запись:</p>
+                <p><strong>{{ entry.title }}</strong></p>
+                <p class="text-danger">Это действие необратимо!</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Да, удалить</button>
+                        <a href="{% url 'journal:entry_detail' entry.pk %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
