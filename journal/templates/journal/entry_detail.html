@@ -15,6 +15,15 @@
                     <span class="badge bg-primary">{{ entry.category }}</span>
                     <small class="text-muted ms-2">{{ entry.created_at|date:"d F Y, H:i" }}</small>
                 </div>
+
+                {% if entry.tags.all %}
+                <div class="mb-3">
+                    {% for tag in entry.tags.all %}
+                        <a href="{% url 'journal:tag_entries' tag.slug %}" class="badge bg-success text-decoration-none">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <hr>
                 <p class="card-text" style="white-space: pre-wrap;">{{ entry.content }}</p>
                 <div class="d-flex gap-2 mt-3">

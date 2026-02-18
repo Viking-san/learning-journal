@@ -5,6 +5,51 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    #id_tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+    }
+    
+    #id_tags li {
+        display: inline-block;
+    }
+    
+    /* Прячем стандартный чекбокс */
+    #id_tags input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    /* Стилизуем label как кнопку */
+    #id_tags label {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background-color: #6c757d;
+        color: white;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 0;
+        user-select: none;
+    }
+    
+    /* Ховер эффект */
+    #id_tags label:hover {
+        background-color: #5a6268;
+        transform: scale(1.05);
+    }
+    
+    /* Активный тег - когда внутри есть checked input */
+    #id_tags label:has(input:checked) {
+        background-color: #28a745 !important;
+    }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card">
@@ -26,6 +71,15 @@
                         {{ form.category }}
                         {% if form.category.errors %}
                             <div class="text-danger">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Теги</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            {{ form.tags }}
+                        </div>
+                        {% if form.tags.errors %}
+                            <div class="text-danger">{{ form.tags.errors }}</div>
                         {% endif %}
                     </div>
                     <div class="mb-3">

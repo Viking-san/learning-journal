@@ -15,13 +15,22 @@
                         <span class="badge bg-primary">{{ entry.category }}</span>
                         {{ entry.created_at|date:"d F Y, H:i" }}
                     </h6>
+
+                    {% if entry.tags.all %}
+                    <div class="mb-2">
+                        {% for tag in entry.tags.all %}
+                            <a href="{% url 'journal:tag_entries' tag.slug %}" class="badge bg-success text-decoration-none">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <p class="card-text" style="white-space: pre-wrap;">{{ entry.content|truncatechars:150 }}</p>
                     <a href="{% url 'journal:entry_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">Читать далее</a>
                 </div>
             </div>
             {% endfor %}
         {% else %}
-            <p class="text-muted">Записей пока нет. Создайте первую запись в <a href="/admin/">админке</a>!</p>
+            <p class="text-muted">Записей пока нет. Создайте первую запись в <a href="/entry/create/">на странице</a>!</p>
         {% endif %}
     </div>
     
@@ -60,6 +69,30 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Блок с тегами -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Теги</h5>
+            </div>
+            <div class="card-body">
+                {% if tags %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for tag in tags %}
+                            <a href="{% url 'journal:tag_entries' tag.slug %}" 
+                            class="badge bg-success text-decoration-none {% if current_tag.id == tag.id %}border border-dark border-2{% endif %}">
+                                {{ tag.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Тегов пока нет.</p>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Конец блока с тегами -->
+
     </div>
 </div>
+
 {% endblock %}

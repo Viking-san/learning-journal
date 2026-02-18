@@ -5,7 +5,7 @@ from .models import Entry
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        fields = ['title', 'content', 'category']
+        fields = ['title', 'content', 'category', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -19,4 +19,5 @@ class EntryForm(forms.ModelForm):
             'category': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'tags': forms.CheckboxSelectMultiple(),
         }

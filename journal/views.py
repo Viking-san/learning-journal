@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
-from .models import Entry, Category
+from .models import Entry, Category, Tag
 from .forms import EntryForm
 from django.urls import reverse_lazy
 
@@ -16,6 +16,7 @@ class EntryListView(ListView):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['total_entries'] = Entry.objects.count()
+        context['tags'] = Tag.objects.all()
         return context
 
 
@@ -63,4 +64,24 @@ class CategoryEntriesView(ListView):
         context['categories'] = Category.objects.all()
         context['current_category'] = self.category
         context['total_entries'] = Entry.objects.count()
+        context['tags'] = Tag.objects.all()
+        return context
+    
+
+class TagEntriesView(ListView):
+    model = Entry
+    template_name = 'jpurnal/entry_list.html'
+    context_object_name = 'entries'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.tag = Tag.objects.get(slug=self.kwargs['slug'])
+        return Entry.objects.filter(tags=self.tag).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['total_entries'] = Entry.objects.count()
+        context['current_tag'] = self.tag
+        context['tags'] = Tag.objects.all()
         return context

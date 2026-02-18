@@ -23,6 +23,26 @@ class Category(models.Model):
         return self.name
 
 
+class Tag(models.Model):
+    """Тег для записей"""
+    name = models.CharField(max_length=50, unique=True, verbose_name='Название')
+    slug = models.SlugField(unique=True, blank=True, verbose_name='Slug')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Созадно')
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
 class Entry(models.Model):
     """Запись в дневнике обучения"""
     title = models.CharField(max_length=200, verbose_name="Заголовок")
@@ -33,6 +53,7 @@ class Entry(models.Model):
         related_name='entries',
         verbose_name="Категория"
     )
+    tags = models.ManyToManyField(Tag, blank=True, related_name='entries', verbose_name='Теги')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
