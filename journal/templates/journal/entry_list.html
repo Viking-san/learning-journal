@@ -33,10 +33,25 @@
             <div class="card-body">
                 {% if categories %}
                     <ul class="list-group list-group-flush">
+                        <!-- Кнопка "Все записи" -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center {% if not current_category %}active{% endif %}">
+                            <a href="{% url 'journal:entry_list' %}" class="text-decoration-none {% if not current_category %}text-white{% endif %}">
+                                Все записи
+                            </a>
+                            <span class="badge {% if not current_category %}bg-light text-dark{% else %}bg-primary{% endif %} rounded-pill">
+                                {{ total_entries }}
+                            </span>
+                        </li>
+                        
+                        <!-- Список категорий -->
                         {% for category in categories %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ category.name }}
-                            <span class="badge bg-primary rounded-pill">{{ category.entries.count }}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center {% if current_category.id == category.id %}active{% endif %}">
+                            <a href="{% url 'journal:category_entries' category.slug %}" class="text-decoration-none {% if current_category.id == category.id %}text-white{% endif %}">
+                                {{ category.name }}
+                            </a>
+                            <span class="badge {% if current_category.id == category.id %}bg-light text-dark{% else %}bg-primary{% endif %} rounded-pill">
+                                {{ category.entries.count }}
+                            </span>
                         </li>
                         {% endfor %}
                     </ul>

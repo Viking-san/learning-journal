@@ -10,4 +10,5 @@ urlpatterns = [
     path('entry/create/', views.EntryCreateView.as_view(), name='entry_create'),
     path('entry/<int:pk>/edit/', views.EntryUpdateView.as_view(), name='entry_update'),
     path('entry/<int:pk>/delete/', views.EntryDeleteView.as_view(), name='entry_delete'),
+    path('category/<slug:slug>/', views.CategoryEntriesView.as_view(), name='category_entries'),
     ]

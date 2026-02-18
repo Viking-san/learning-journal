@@ -15,6 +15,7 @@ class EntryListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+        context['total_entries'] = Entry.objects.count()
         return context
 
 
@@ -45,3 +46,21 @@ class EntryDeleteView(DeleteView):
     model = Entry
     template_name = 'journal/entry_confirm_delete.html'
     success_url = reverse_lazy('journal:entry_detail')
+
+
+class CategoryEntriesView(ListView):
+    model = Entry
+    template_name = 'journal/entry_list.html'
+    context_object_name = 'entries'
+    paginate = 10
+
+    def get_queryset(self):
+        self.category = Category.objects.get(slug=self.kwargs['slug'])
+        return Entry.objects.filter(category=self.category).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['current_category'] = self.category
+        context['total_entries'] = Entry.objects.count()
+        return context
