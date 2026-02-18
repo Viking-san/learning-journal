@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
-from .models import Entry
+from .models import Entry, Category
 from .forms import EntryForm
 from django.urls import reverse_lazy
 
@@ -11,6 +11,11 @@ class EntryListView(ListView):
     context_object_name = 'entries'
     ordering = ['-created_at']
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class EntryDetailView(DetailView):
