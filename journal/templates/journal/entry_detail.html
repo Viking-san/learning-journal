@@ -1,4 +1,5 @@
 {% extends 'journal/base.html' %}
+{% load markdown_extras %}
 
 {% block title %}{{ entry.title }} - Learning Journal{% endblock %}
 
@@ -25,7 +26,7 @@
                 {% endif %}
 
                 <hr>
-                <p class="card-text" style="white-space: pre-wrap;">{{ entry.content }}</p>
+                <div class="card-text">{{ entry.content|markdown }}</div>
                 <div class="d-flex gap-2 mt-3">
                     <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
                     <a href="{% url 'journal:entry_delete' entry.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>

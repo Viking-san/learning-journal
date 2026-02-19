@@ -4,7 +4,9 @@
     {% if form.instance.pk %}Редактировать запись{% else %}Новая запись{% endif %} - Learning Journal
 {% endblock %}
 
-{% block content %}
+<!-- extra_css СНАРУЖИ content -->
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 <style>
     #id_tags {
         display: flex;
@@ -18,14 +20,12 @@
         display: inline-block;
     }
     
-    /* Прячем стандартный чекбокс */
     #id_tags input[type="checkbox"] {
         position: absolute;
         opacity: 0;
         pointer-events: none;
     }
     
-    /* Стилизуем label как кнопку */
     #id_tags label {
         display: inline-block;
         padding: 0.4rem 1rem;
@@ -38,18 +38,19 @@
         user-select: none;
     }
     
-    /* Ховер эффект */
     #id_tags label:hover {
         background-color: #5a6268;
         transform: scale(1.05);
     }
     
-    /* Активный тег - когда внутри есть checked input */
     #id_tags label:has(input:checked) {
         background-color: #28a745 !important;
     }
 </style>
+{% endblock %}
 
+<!-- Вот тут начинается content -->
+{% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card">
@@ -98,4 +99,59 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+<!-- extra_js СНАРУЖИ content -->
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.getElementById('id_content');
+    if (contentTextarea) {
+        new EasyMDE({
+            element: contentTextarea,
+            spellChecker: false,
+            placeholder: "Что изучили сегодня? Используйте Markdown для форматирования.",
+            toolbar: [
+                "bold", "italic", "heading", "|",
+                "quote", "unordered-list", "ordered-list", "|",
+                {
+                    name: "code",
+                    action: function(editor) {
+                        const cm = editor.codemirror;
+                        const selection = cm.getSelection();
+                        cm.replaceSelection("```python\n" + selection + "\n```");
+                    },
+                    className: "fa fa-code",
+                    title: "Code Block (Python)"
+                },
+                "link", "|",
+                "preview", "side-by-side", "fullscreen", "|",
+                "guide"
+            ]
+        });
+    }
+    
+    const tagsList = document.getElementById('id_tags');
+    if (!tagsList) return;
+    
+    tagsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        const label = checkbox.parentElement.querySelector('label') || 
+                      checkbox.nextElementSibling ||
+                      checkbox.previousElementSibling;
+        
+        if (label && label.tagName === 'LABEL') {
+            if (checkbox.checked) {
+                label.classList.add('active');
+            }
+            
+            label.addEventListener('click', function(e) {
+                e.preventDefault();
+                checkbox.checked = !checkbox.checked;
+                label.classList.toggle('active');
+            });
+        }
+    });
+});
+</script>
 {% endblock %}
