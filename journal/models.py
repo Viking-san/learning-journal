@@ -54,6 +54,7 @@ class Entry(models.Model):
         verbose_name="Категория"
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name='entries', verbose_name='Теги')
+    image = models.ImageField(upload_to='entries/%Y/%m', blank=True, null=True, verbose_name='Изображение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 

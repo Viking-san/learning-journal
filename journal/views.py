@@ -30,7 +30,13 @@ class EntryCreateView(CreateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
-    success_url = reverse_lazy('journal:entry_list')
+    # success_url = reverse_lazy('journal:entry_list')
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})
 
 
 class EntryUpdateView(UpdateView):
@@ -46,7 +52,7 @@ class EntryUpdateView(UpdateView):
 class EntryDeleteView(DeleteView):
     model = Entry
     template_name = 'journal/entry_confirm_delete.html'
-    success_url = reverse_lazy('journal:entry_detail')
+    success_url = reverse_lazy('journal:entry_list')
 
 
 class CategoryEntriesView(ListView):

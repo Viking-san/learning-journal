@@ -58,7 +58,7 @@
                 <h4>{% if form.instance.pk %}Редактировать запись{% else %}Новая запись{% endif %}</h4>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Заголовок</label>
@@ -84,6 +84,13 @@
                         {% endif %}
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Изображение</label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <div class="text-danger">{{ form.image.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Содержание</label>
                         {{ form.content }}
                         {% if form.content.errors %}
@@ -101,14 +108,16 @@
 </div>
 {% endblock %}
 
-<!-- extra_js СНАРУЖИ content -->
+
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    let easyMDE = null;  // <- переместили СЮДА, до всех if
     const contentTextarea = document.getElementById('id_content');
+    
     if (contentTextarea) {
-        new EasyMDE({
+        easyMDE = new EasyMDE({
             element: contentTextarea,
             spellChecker: false,
             placeholder: "Что изучили сегодня? Используйте Markdown для форматирования.",
@@ -132,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Стилизация тегов
     const tagsList = document.getElementById('id_tags');
     if (!tagsList) return;
     
