@@ -17,6 +17,14 @@
                         {{ entry.created_at|date:"d F Y, H:i" }}
                     </h6>
 
+                    <!-- Картинка -->
+                    {% if entry.image %}
+                    <div class="mb-2">
+                        <img src="{{ entry.image.url }}" alt="{{ entry.title }}" class="img-fluid rounded" style="max-height: 400px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Теги -->
                     {% if entry.tags.all %}
                     <div class="mb-2">
                         {% for tag in entry.tags.all %}
@@ -25,7 +33,7 @@
                     </div>
                     {% endif %}
 
-                    <div class="card-text">{{ entry.content|markdown|truncatechars_html:300 }}</div>
+                    <div class="card-text">{{ entry.content|markdown|truncatechars_html:200 }}</div>
                     <a href="{% url 'journal:entry_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">Читать далее</a>
                 </div>
             </div>

@@ -16,7 +16,15 @@
                     <span class="badge bg-primary">{{ entry.category }}</span>
                     <small class="text-muted ms-2">{{ entry.created_at|date:"d F Y, H:i" }}</small>
                 </div>
-
+                
+                <!-- Картинка -->
+                {% if entry.image %}
+                <div class="mb-3">
+                    <img src="{{ entry.image.url }}" alt="{{ entry.title }}" class="img-fluid rounded">
+                </div>
+                {% endif %}
+                
+                <!-- Теги -->
                 {% if entry.tags.all %}
                 <div class="mb-3">
                     {% for tag in entry.tags.all %}
