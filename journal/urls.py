@@ -12,4 +12,5 @@ urlpatterns = [
     path('entry/<int:pk>/delete/', views.EntryDeleteView.as_view(), name='entry_delete'),
     path('category/<slug:slug>/', views.CategoryEntriesView.as_view(), name='category_entries'),
     path('tag/<slug:slug>/', views.TagEntriesView.as_view(), name='tag_entries'),
+    path('stats/', views.StatsView.as_view(), name='stats')
     ]

@@ -1,0 +1,130 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}Статистика - Learning Journal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Статистика</h1>
+        
+        <!-- Общие цифры -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h2 class="text-primary">{{ total_entries }}</h2>
+                        <p class="text-muted mb-0">Всего записей</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h2 class="text-success">{{ total_categories }}</h2>
+                        <p class="text-muted mb-0">Категорий</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h2 class="text-info">{{ total_tags }}</h2>
+                        <p class="text-muted mb-0">Тегов</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- График по неделям -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Записи по неделям (последние 12 недель)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Записи по категориям -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Записи по категориям</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Категория</th>
+                                <th class="text-end">Количество записей</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in entries_by_category %}
+                            <tr>
+                                <td>{{ category.name }}</td>
+                                <td class="text-end">
+                                    <span class="badge bg-primary">{{ category.count }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('weeklyChart');
+
+const labels = [
+    {% for item in entries_by_week %}
+        '{{ item.week|date:"d M" }}'{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+const chartData = [
+    {% for item in entries_by_week %}
+        {{ item.count }}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+console.log('Labels:', labels);
+console.log('Data:', chartData);
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Записей',
+            data: chartData,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

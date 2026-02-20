@@ -1,8 +1,11 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView,TemplateView
 from .models import Entry, Category, Tag
 from .forms import EntryForm
 from django.urls import reverse_lazy
+from django.db.models import Count
+from django.db.models.functions import TruncWeek
+from datetime import timedelta, datetime
 
 
 class EntryListView(ListView):
@@ -90,4 +93,33 @@ class TagEntriesView(ListView):
         context['total_entries'] = Entry.objects.count()
         context['current_tag'] = self.tag
         context['tags'] = Tag.objects.all()
+        return context
+    
+
+class StatsView(TemplateView):
+    template_name = 'journal/stats.html'
+
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+
+        # totals
+        context['total_entries'] = Entry.objects.count()
+        context['total_categories'] = Category.objects.count()
+        context['total_tags'] = Tag.objects.count()
+
+        # entries by categories
+        context['entries_by_categories'] = Category.objects.annotate(count=Count('entries')).order_by('-count')
+
+        # entries by weeks(12 weeks)
+        twelve_weeks_ago = datetime.now() - timedelta(weeks=12)
+        entries_by_week = Entry.objects.filter(
+            created_at__gte=twelve_weeks_ago
+        ).annotate(
+            week=TruncWeek('created_at')
+        ).values('week').annotate(
+            count=Count('id')
+        ).order_by('week')
+
+        context['entries_by_week'] = entries_by_week
+
         return context
