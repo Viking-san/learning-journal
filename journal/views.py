@@ -6,6 +6,9 @@ from django.urls import reverse_lazy
 from django.db.models import Count
 from django.db.models.functions import TruncWeek
 from datetime import timedelta, datetime
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 
 
 class EntryListView(ListView):
@@ -123,3 +126,40 @@ class StatsView(TemplateView):
         context['entries_by_week'] = entries_by_week
 
         return context
+
+
+class EntryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для записей.
+    
+    Фильтрация:
+    - /api/entries/?category=1
+    - /api/entries/?tags=2
+    
+    Поиск:
+    - /api/entries/?search=django
+    
+    Сортировка:
+    - /api/entries/?ordering=-created_at
+    - /api/entries/?ordering=title
+    """
+    queryset = Entry.objects.all().order_by('-created_at')
+    serializer_class = EntrySerializer
+    permission_classes = [AllowAny]
+    filterset_fields = ['category', 'tags']
+    search_fields = ['title', 'content']
+    ordering_fields = ['created_at', 'updated_at', 'title']
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """API endpoint для категорий"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    """API endpoint для тегов"""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [AllowAny]
