@@ -36,7 +36,6 @@ class EntryCreateView(CreateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
-    # success_url = reverse_lazy('journal:entry_list')
 
     def form_valid(self, form):
         return super().form_valid(form)
@@ -49,7 +48,6 @@ class EntryUpdateView(UpdateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
-    # success_url = reverse_lazy('journal:entry_list')
 
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})
@@ -65,7 +63,7 @@ class CategoryEntriesView(ListView):
     model = Entry
     template_name = 'journal/entry_list.html'
     context_object_name = 'entries'
-    paginate = 10
+    paginate_by = 10
 
     def get_queryset(self):
         self.category = Category.objects.get(slug=self.kwargs['slug'])
@@ -82,7 +80,7 @@ class CategoryEntriesView(ListView):
 
 class TagEntriesView(ListView):
     model = Entry
-    template_name = 'jpurnal/entry_list.html'
+    template_name = 'journal/entry_list.html'
     context_object_name = 'entries'
     paginate_by = 10
 
