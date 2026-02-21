@@ -53,22 +53,38 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-4. Применить миграции
+4. Создать файл `.env` в корне проекта
+```bash
+touch .env
+```
+
+Добавить в `.env`:
+```
+SECRET_KEY=ваш_секретный_ключ_здесь
+DEBUG=True
+```
+
+Для генерации SECRET_KEY выполните:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+5. Применить миграции
 ```bash
 python manage.py migrate
 ```
 
-5. Создать суперпользователя (для админки)
+6. Создать суперпользователя (для админки)
 ```bash
 python manage.py createsuperuser
 ```
 
-6. Запустить сервер
+7. Запустить сервер
 ```bash
 python manage.py runserver
 ```
 
-Приложение доступно по адресу: http://127.0.0.1:8000/
+Приложение доступно по адресу: http://127.0.0.1:8000/  
 Админка для создания категорий и тегов http://127.0.0.1:8000/admin/
 
 ## API Endpoints
