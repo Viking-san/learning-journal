@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <h1 class="mb-4">Мои записи</h1>
         {% if entries %}
             {% for entry in entries %}
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{{ entry.title }}</h5>
+                    <h4 class="card-title fw-bold" style="font-size: 1.7rem;">{{ entry.title }}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">
                         <span class="badge bg-primary">{{ entry.category }}</span>
                         {{ entry.created_at|date:"d F Y, H:i" }}
@@ -75,7 +75,7 @@
         {% endif %}
     </div>
     
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <div class="card">
             <div class="card-header">
                 <h5>Категории</h5>

@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <a href="{% url 'journal:entry_list' %}" class="btn btn-outline-secondary btn-sm mb-3">
             ← Назад к списку
         </a>
@@ -14,13 +14,16 @@
                 <h1 class="card-title">{{ entry.title }}</h1>
                 <div class="mb-3">
                     <span class="badge bg-primary">{{ entry.category }}</span>
-                    <small class="text-muted ms-2">{{ entry.created_at|date:"d F Y, H:i" }}</small>
+                    <small class="text-muted ms-2">Создано: {{ entry.created_at|date:"d F Y, H:i" }}</small>
+                    {% if entry.updated_at|date:"U" != entry.created_at|date:"U" %}
+                        <small class="text-muted ms-2">| Изменено: {{ entry.updated_at|date:"d F Y, H:i" }}</small>
+                    {% endif %}
                 </div>
                 
                 <!-- Картинка -->
                 {% if entry.image %}
-                <div class="mb-3">
-                    <img src="{{ entry.image.url }}" alt="{{ entry.title }}" class="img-fluid rounded">
+                <div class="mb-2">
+                    <img src="{{ entry.image.url }}" alt="{{ entry.title }}" class="img-fluid rounded" style="max-height: 600px; object-fit: cover;">
                 </div>
                 {% endif %}
                 
