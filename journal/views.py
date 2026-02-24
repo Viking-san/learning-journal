@@ -36,9 +36,6 @@ class EntryCreateView(CreateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
-
-    def form_valid(self, form):
-        return super().form_valid(form)
     
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})

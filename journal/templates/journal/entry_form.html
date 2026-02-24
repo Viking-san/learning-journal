@@ -158,8 +158,7 @@
                         {% endif %}
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                        <!-- <a href="{% url 'journal:entry_list' %}" class="btn btn-outline-secondary">Отмена</a> -->
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Сохранить</button>
                         {% if form.instance.pk %}
                             <a href="{% url 'journal:entry_detail' form.instance.pk %}" class="btn btn-outline-secondary">Отмена</a>
                         {% else %}
@@ -228,5 +227,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Блокировка кнопки после отправки формы
+const form = document.querySelector('form');
+const submitBtn = document.getElementById('submit-btn');
+let isSubmitting = false;
+
+if (form && submitBtn) {
+    form.addEventListener('submit', function(e) {
+        if (isSubmitting) {
+            e.preventDefault();
+            return false;
+        }
+        
+        isSubmitting = true;
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Сохранение...';
+        submitBtn.classList.add('disabled');
+    });
+}
+
 </script>
 {% endblock %}
