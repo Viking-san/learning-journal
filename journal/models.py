@@ -27,7 +27,7 @@ class Tag(models.Model):
     """Тег для записей"""
     name = models.CharField(max_length=50, unique=True, verbose_name='Название')
     slug = models.SlugField(unique=True, blank=True, verbose_name='Slug')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Созадно')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
 
     class Meta:
         verbose_name = 'Тег'
