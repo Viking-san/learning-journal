@@ -1,3 +1,4 @@
+![Django Tests](https://github.com/Viking-san/learning-journal/actions/workflows/django-tests.yml/badge.svg)
 # Learning Journal
 
 Веб-приложение для ведения дневника обучения с поддержкой Markdown, тегов и REST API.
