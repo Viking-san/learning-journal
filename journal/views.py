@@ -17,10 +17,16 @@ class EntryListView(ListView):
     context_object_name = 'entries'
     ordering = ['-created_at']
     paginate_by = 10
+    
+    # оптимизация queries
+    queryset = Entry.objects.select_related('category').prefetch_related('tags')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
+        # context['categories'] = Category.objects.all()
+        context['categories'] = Category.objects.annotate(
+            entry_count=Count('entries')
+        )
         context['total_entries'] = Entry.objects.count()
         context['tags'] = Tag.objects.all()
         return context
@@ -64,11 +70,15 @@ class CategoryEntriesView(ListView):
 
     def get_queryset(self):
         self.category = Category.objects.get(slug=self.kwargs['slug'])
-        return Entry.objects.filter(category=self.category).order_by('-created_at')
+        # return Entry.objects.filter(category=self.category).order_by('-created_at')
+        return Entry.objects.filter(category=self.category).select_related('category').prefetch_related('tags').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
+        # context['categories'] = Category.objects.all()        
+        context['categories'] = Category.objects.annotate(
+            entry_count=Count('entries')
+        )
         context['current_category'] = self.category
         context['total_entries'] = Entry.objects.count()
         context['tags'] = Tag.objects.all()
@@ -83,11 +93,15 @@ class TagEntriesView(ListView):
 
     def get_queryset(self):
         self.tag = Tag.objects.get(slug=self.kwargs['slug'])
-        return Entry.objects.filter(tags=self.tag).order_by('-created_at')
+        # return Entry.objects.filter(tags=self.tag).order_by('-created_at')
+        return Entry.objects.filter(tags=self.tag).select_related('category').prefetch_related('tags').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
+        # context['categories'] = Category.objects.all()
+        context['categories'] = Category.objects.annotate(
+            entry_count=Count('entries')
+        )
         context['total_entries'] = Entry.objects.count()
         context['current_tag'] = self.tag
         context['tags'] = Tag.objects.all()
@@ -110,13 +124,14 @@ class StatsView(TemplateView):
 
         # entries by weeks(12 weeks)
         twelve_weeks_ago = datetime.now() - timedelta(weeks=12)
-        entries_by_week = Entry.objects.filter(
-            created_at__gte=twelve_weeks_ago
-        ).annotate(
-            week=TruncWeek('created_at')
-        ).values('week').annotate(
-            count=Count('id')
-        ).order_by('week')
+        entries_by_week = (
+            Entry.objects
+            .filter(created_at__gte=twelve_weeks_ago)
+            .annotate(week=TruncWeek('created_at'))
+            .values('week')
+            .annotate(count=Count('id'))
+            .order_by('week')
+        )
 
         context['entries_by_week'] = entries_by_week
 

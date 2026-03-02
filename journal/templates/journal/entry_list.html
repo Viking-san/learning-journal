@@ -26,13 +26,15 @@
                     {% endif %}
                     
                     <!-- Теги -->
-                    {% if entry.tags.all %}
+                    {% with tags=entry.tags.all %}
+                    {% if tags %}
                     <div class="mb-2">
-                        {% for tag in entry.tags.all %}
+                        {% for tag in tags %}
                             <a href="{% url 'journal:tag_entries' tag.slug %}" class="badge bg-success text-decoration-none">{{ tag.name }}</a>
                         {% endfor %}
                     </div>
                     {% endif %}
+                    {% endwith %}
 
                     <div class="card-text">{{ entry.content|markdown|truncatechars_html:200 }}</div>
                     <a href="{% url 'journal:entry_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">Читать далее</a>
@@ -101,7 +103,8 @@
                                 {{ category.name }}
                             </a>
                             <span class="badge {% if current_category.id == category.id %}bg-light text-dark{% else %}bg-primary{% endif %} rounded-pill">
-                                {{ category.entries.count }}
+                                <!-- {{ category.entries.count }} -->
+                                    {{ category.entry_count }}
                             </span>
                         </li>
                         {% endfor %}
