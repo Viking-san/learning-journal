@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView, UpdateView, CreateView, D
 from .models import Entry, Category, Tag, Comment
 from .forms import EntryForm, CommentForm
 from django.urls import reverse_lazy
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import TruncWeek
 from datetime import timedelta, datetime
 from rest_framework import viewsets
@@ -18,12 +18,20 @@ class EntryListView(ListView):
     ordering = ['-created_at']
     paginate_by = 10
     
-    # оптимизация queries
-    queryset = Entry.objects.select_related('category').prefetch_related('tags')
+    def get_queryset(self):
+        q = self.request.GET.get('q')
+        queryset = Entry.objects.select_related('category').prefetch_related('tags')
+        if q:
+            queryset = queryset.filter(
+                Q(category__name__icontains=q) |
+                Q(tags__name__icontains=q) |
+                Q(title__icontains=q) |
+                Q(content__icontains=q)
+            ).distinct()
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['categories'] = Category.objects.all()
         context['categories'] = Category.objects.annotate(
             entry_count=Count('entries')
         )
