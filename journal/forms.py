@@ -1,5 +1,5 @@
 from django import forms
-from .models import Entry
+from .models import Entry, Comment
 
 
 class EntryForm(forms.ModelForm):
@@ -23,4 +23,29 @@ class EntryForm(forms.ModelForm):
             'image': forms.FileInput(attrs={
                 'class': 'form-control'
             }),
+        }
+
+
+# class CommentForm(forms.ModelForm):
+#     class Meta:
+#         model = Comment
+#         fields = ['author_name', 'content']
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['author_name', 'content']
+        widgets = {
+            'author_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ваше имя',
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Текст комментария',
+                'rows': 4,
+            }),
+        }
+        labels = {
+            'author_name': 'Имя автора',
+            'content': 'Комментарий',
         }

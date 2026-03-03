@@ -28,16 +28,48 @@
                 {% endif %}
                 
                 <!-- Теги -->
-                {% if entry.tags.all %}
+                {% with tags=entry.tags.all %}
+                {% if tags %}
                 <div class="mb-3">
-                    {% for tag in entry.tags.all %}
+                    {% for tag in tags %}
                         <a href="{% url 'journal:tag_entries' tag.slug %}" class="badge bg-success text-decoration-none">{{ tag.name }}</a>
                     {% endfor %}
                 </div>
                 {% endif %}
+                {% endwith %}
 
                 <hr>
+                <!-- Контент -->
                 <div class="card-text">{{ entry.content|markdown }}</div>
+
+                <hr>
+                <!-- Комментарии -->
+                <h4 class="mt-4">Комментарии ({{ comments|length }})</h4>
+
+                {% if comments %}
+                    {% for comment in comments %}
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <strong>{{ comment.author_name }}</strong>
+                                <small class="text-muted ms-2">
+                                    {{ comment.created_at|date:"d F Y, H:i" }}
+                                </small>
+                                <p class="mt-2 mb-0">{{ comment.content }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Пока нет комментариев.</p>
+                {% endif %}
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Добавить комментарий
+                    </button>
+                </form>
+
                 <div class="d-flex gap-2 mt-3">
                     <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
                     <a href="{% url 'journal:entry_delete' entry.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>

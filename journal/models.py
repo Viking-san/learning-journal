@@ -65,3 +65,24 @@ class Entry(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    """Комментарий к записи"""
+    entry = models.ForeignKey(
+        Entry,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Запись'
+    )
+    author_name = models.CharField(max_length=100, verbose_name='Имя автора')
+    content = models.TextField(verbose_name='Текст комментария')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Комментарий от {self.author_name} к {self.entry.title}'
