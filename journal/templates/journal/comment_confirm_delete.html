@@ -1,0 +1,27 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}Удалить комментарий - Learning Journal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>Удалить комментарий?</h4>
+            </div>
+            <div class="card-body">
+                <p>Вы уверены что хотите удалить комментарий от <strong>{{ comment.author_name }}</strong>:</p>
+                <p class="text-muted">{{ comment.content|truncatewords:20 }}</p>
+                <p class="text-danger">Это действие необратимо!</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Да, удалить</button>
+                        <a href="{% url 'journal:entry_detail' comment.entry.pk %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

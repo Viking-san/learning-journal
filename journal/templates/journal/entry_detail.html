@@ -60,6 +60,10 @@
                                     {{ comment.created_at|date:"d F Y, H:i" }}
                                 </small>
                                 <p class="mt-2 mb-0">{{ comment.content|markdown }}</p>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="{% url 'journal:comment_update' comment.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
+                                    <a href="{% url 'journal:comment_delete' comment.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
