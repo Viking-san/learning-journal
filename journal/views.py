@@ -91,6 +91,24 @@ class EntryDeleteView(DeleteView):
     success_url = reverse_lazy('journal:entry_list')
 
 
+# Обновление и удаление комментариев
+class CommentUpdateView(UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'journal/comment_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.entry.pk})
+    
+
+class CommentDeleteView(DeleteView):
+    model = Comment
+    template_name = 'journal/comment_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.entry.pk})
+
+
 class CategoryEntriesView(ListView):
     model = Entry
     template_name = 'journal/entry_list.html'
