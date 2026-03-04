@@ -55,15 +55,23 @@
                     {% for comment in comments %}
                         <div class="card mb-2">
                             <div class="card-body">
-                                <strong>{{ comment.author_name }}</strong>
-                                <small class="text-muted ms-2">
-                                    {{ comment.created_at|date:"d F Y, H:i" }}
-                                </small>
-                                <p class="mt-2 mb-0">{{ comment.content|markdown }}</p>
-                                <div class="d-flex gap-2 mt-2">
-                                    <a href="{% url 'journal:comment_update' comment.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
-                                    <a href="{% url 'journal:comment_delete' comment.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ comment.author_name }}</strong>
+                                        <small class="text-muted ms-2">
+                                            {{ comment.created_at|date:"d F Y, H:i" }}
+                                        </small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'journal:comment_update' comment.pk %}" class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'journal:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                            <i class="bi bi-x-lg"></i>
+                                        </a>
+                                    </div>
                                 </div>
+                                <p class="mt-2 mb-0">{{ comment.content|markdown }}</p>
                             </div>
                         </div>
                     {% endfor %}

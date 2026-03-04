@@ -3,8 +3,8 @@
 {% block title %}Редактировать комментарий - Learning Journal{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-6">
+<div class="row">
+    <div class="col-lg-9">
         <div class="card">
             <div class="card-header">
                 <h4>Редактировать комментарий</h4>
@@ -35,4 +35,16 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contentField = document.getElementById('id_content');
+    if (contentField) {
+        // Базово было 4 строки, увеличиваем до 10 (~250%)
+        contentField.rows = 10;
+    }
+});
+</script>
 {% endblock %}
