@@ -45,15 +45,14 @@
             <a class="navbar-brand" href="{% url 'journal:entry_list' %}">Learning Journal</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
-            </button>
+            </button>            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <form class="d-flex ms-3" method="get" action="{% url 'journal:entry_list' %}">
-                        <input class="form-control me-2" type="search" name="q" placeholder="Поиск..." 
-                            value="{{ request.GET.q }}">
-                        <!-- <button class="btn btn-outline-light btn-sm" type="submit">Найти</button> -->
-                         <button class="btn btn-sm" style="color: #adb5bd; border-color: #adb5bd;" type="submit">Найти</button>
-                    </form>
+                <form class="d-flex ms-auto" method="get" action="{% url 'journal:entry_list' %}">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск..." 
+                        value="{{ request.GET.q }}">
+                     <button class="btn btn-sm" style="color: #adb5bd; border-color: #adb5bd;" type="submit">Найти</button>
+                </form>
+                <ul class="navbar-nav ms-3">                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'journal:entry_list' %}">Главная</a>
                     </li>

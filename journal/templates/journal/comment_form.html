@@ -36,15 +36,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const contentField = document.getElementById('id_content');
-    if (contentField) {
-        // Базово было 4 строки, увеличиваем до 10 (~250%)
-        contentField.rows = 10;
-    }
-});
-</script>
-{% endblock %}
