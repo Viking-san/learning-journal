@@ -1,5 +1,7 @@
 {% extends 'journal/base.html' %}
 
+{% load static %}
+
 {% block title %}Статистика - Learning Journal{% endblock %}
 
 {% block content %}
@@ -75,9 +77,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_js %}
+<script src="{% static 'journal/js/chart.min.js' %}"></script>
 <script>
 const ctx = document.getElementById('weeklyChart');
 
