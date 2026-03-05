@@ -91,7 +91,6 @@ class EntryDeleteView(DeleteView):
     success_url = reverse_lazy('journal:entry_list')
 
 
-# Обновление и удаление комментариев
 class CommentUpdateView(UpdateView):
     model = Comment
     form_class = CommentForm
