@@ -116,7 +116,6 @@ class CategoryEntriesView(ListView):
 
     def get_queryset(self):
         self.category = Category.objects.get(slug=self.kwargs['slug'])
-        # return Entry.objects.filter(category=self.category).order_by('-created_at')
         return Entry.objects.filter(category=self.category).select_related('category').prefetch_related('tags').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
