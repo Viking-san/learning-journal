@@ -120,7 +120,6 @@ class CategoryEntriesView(ListView):
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
-        # context['categories'] = Category.objects.all()        
         context['categories'] = Category.objects.annotate(
             entry_count=Count('entries')
         )
@@ -138,12 +137,10 @@ class TagEntriesView(ListView):
 
     def get_queryset(self):
         self.tag = Tag.objects.get(slug=self.kwargs['slug'])
-        # return Entry.objects.filter(tags=self.tag).order_by('-created_at')
         return Entry.objects.filter(tags=self.tag).select_related('category').prefetch_related('tags').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['categories'] = Category.objects.all()
         context['categories'] = Category.objects.annotate(
             entry_count=Count('entries')
         )
