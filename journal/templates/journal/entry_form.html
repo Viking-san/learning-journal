@@ -8,7 +8,11 @@
 
 <!-- extra_css СНАРУЖИ content -->
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'journal/css/easymde.min.css' %}">
+{% if USE_CDN %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+{% else %}
+    <link rel="stylesheet" href="{% static 'journal/css/easymde.min.css' %}">
+{% endif %}
 <style>
     #id_tags {
         display: flex;
@@ -176,7 +180,11 @@
 
 
 {% block extra_js %}
-<script src="{% static 'journal/js/easymde.min.js' %}"></script>
+{% if USE_CDN %}
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+{% else %}
+    <script src="{% static 'journal/js/easymde.min.js' %}"></script>
+{% endif %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let easyMDE = null;  // <- переместили СЮДА, до всех if
