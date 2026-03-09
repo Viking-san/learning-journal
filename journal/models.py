@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from rest_framework.decorators import action
 
 
 class Category(models.Model):
@@ -87,3 +88,24 @@ class Comment(models.Model):
     def __str__(self):
         return f'Комментарий от {self.author_name} к {self.entry.title}'
     
+
+class EntryLog(models.Model):
+    """Лог записи"""
+    entry = models.ForeignKey(
+        Entry,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='entry_logs',
+        verbose_name='Запись'
+    )
+    entry_title = models.CharField(max_length=200, verbose_name="Заголовок")
+    action = models.CharField(max_length=10, verbose_name='Действие')
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Время')
+
+    class Meta:
+        verbose_name = 'Лог записи'
+        verbose_name_plural = 'Логи записей'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f'{self.timestamp} - {self.entry_title} - {self.action}'
