@@ -135,4 +135,4 @@ MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 INTERNAL_IPS = ['127.0.0.1']
 
 # Еслм cdn сломался, то переключится на локальные файлы
-USE_CDN = config('USE_CDN', default=False, cast=bool)
+USE_CDN = config('USE_CDN', default=True, cast=bool)

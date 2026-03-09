@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView,TemplateView
 from .models import Entry, Category, Tag, Comment
 from .forms import EntryForm, CommentForm
@@ -19,7 +19,7 @@ class EntryListView(ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        q = self.request.GET.get('q')
+        q = self.request.GET.get('q', '').strip()
         queryset = Entry.objects.select_related('category').prefetch_related('tags')
         if q:
             queryset = queryset.filter(
@@ -115,7 +115,8 @@ class CategoryEntriesView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        self.category = Category.objects.get(slug=self.kwargs['slug'])
+        # self.category = Category.objects.get(slug=self.kwargs['slug'])
+        self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
         return Entry.objects.filter(category=self.category).select_related('category').prefetch_related('tags').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
@@ -195,7 +196,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     - /api/entries/?ordering=-created_at
     - /api/entries/?ordering=title
     """
-    queryset = Entry.objects.all().order_by('-created_at')
+    queryset = Entry.objects.select_related('category').prefetch_related('tags').order_by('-created_at')
     serializer_class = EntrySerializer
     permission_classes = [AllowAny]
     filterset_fields = ['category', 'tags']

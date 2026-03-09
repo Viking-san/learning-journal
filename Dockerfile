@@ -22,5 +22,12 @@ RUN python manage.py collectstatic --noinput
 # Открываем порт 8000
 EXPOSE 8000
 
+# Создаём пользователя с таким же UID как у pans на хосте
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Переключаемся на этого пользователя
+USER appuser
+
 # Запуск через gunicorn (не runserver — он не для продакшена)
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
