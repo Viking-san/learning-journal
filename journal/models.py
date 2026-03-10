@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from rest_framework.decorators import action
+from .custom_managers import PublishedManager
 
 
 class Category(models.Model):
@@ -58,6 +59,10 @@ class Entry(models.Model):
     image = models.ImageField(upload_to='entries/%Y/%m', blank=True, null=True, verbose_name='Изображение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+    is_published = models.BooleanField(default=True, verbose_name='Опубликовано')
+
+    objects = models.Manager()  # Стандартный manager
+    published = PublishedManager()  # Custom manager
 
     class Meta:
         verbose_name = "Запись"

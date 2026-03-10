@@ -14,5 +14,5 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
     path('category/<slug:slug>/', views.CategoryEntriesView.as_view(), name='category_entries'),
     path('tag/<slug:slug>/', views.TagEntriesView.as_view(), name='tag_entries'),
-    path('stats/', views.StatsView.as_view(), name='stats')
+    path('stats/', views.StatsView.as_view(), name='stats'),
     ]

@@ -18,9 +18,9 @@ class SimpleMiddleware:
         # after view
         result_time = time() - current_time
 
-        if result_time > .1 and not request.path.startswith(('/static/', '/media/')):
-            logger.warning(f'"{request.path}" - {request.method} - {result_time:.3f}')
+        if result_time > .2 and not request.path.startswith(('/static/', '/media/')):
+            logger.warning(f'path: "{request.path}" - method: {request.method} - time: {result_time:.3f} - status_code: {response.status_code}')
         else:
-            logger.info(f'"{request.path}" - {request.method} - {result_time:.3f}')
+            logger.info(f'path: "{request.path}" - method: {request.method} - time: {result_time:.3f} - status_code: {response.status_code}')
 
         return response

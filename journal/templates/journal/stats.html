@@ -62,7 +62,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for category in entries_by_category %}
+                            {% for category in entries_by_categories %}
                             <tr>
                                 <td>{{ category.name }}</td>
                                 <td class="text-end">
@@ -111,7 +111,7 @@ new Chart(ctx, {
             label: 'Записей',
             data: chartData,
             borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            backgroundColor: 'rgba(75, 192, 75, 0.2)',
             tension: 0.1,
             fill: true
         }]

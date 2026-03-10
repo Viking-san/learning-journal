@@ -34,6 +34,6 @@ class EntrySerializer(serializers.ModelSerializer):
         model = Entry
         fields = [
             'id', 'title', 'content', 'category', 'category_id',
-            'tags', 'tag_ids', 'image', 'created_at', 'updated_at'
+            'tags', 'tag_ids', 'image', 'created_at', 'updated_at', 'is_published',
         ]
         read_only_fields = ['created_at', 'updated_at']
