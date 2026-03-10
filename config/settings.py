@@ -121,9 +121,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # logging
-HANDLERS = ['console']
-if not os.environ.get('RAILWAY_ENVIRONMENT'):
-    HANDLERS.append('file')
+LOG_FILE = BASE_DIR / 'logs' / 'journal.log'
+USE_FILE_LOGGING = os.environ.get('USE_FILE_LOGGING', 'true').lower() == 'true'
 
 LOGGING = {
     'version': 1,
@@ -139,20 +138,19 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        'file': {
+        **({'file': {
             'class': 'logging.FileHandler',
             'formatter': 'simple',
-            'filename': BASE_DIR / 'logs' / 'journal.log',
-        },
+            'filename': LOG_FILE,
+        }} if USE_FILE_LOGGING else {}),
     },
     'loggers': {
         'journal': {
-            'handlers': HANDLERS,
+            'handlers': ['console', 'file'] if USE_FILE_LOGGING else ['console'],
             'level': 'DEBUG',
         },
     },
 }
-
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
