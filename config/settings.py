@@ -122,7 +122,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # logging
 LOG_FILE = BASE_DIR / 'logs' / 'journal.log'
-USE_FILE_LOGGING = os.environ.get('USE_FILE_LOGGING', 'true').lower() == 'true'
+USE_FILE_LOGGING = os.environ.get('USE_FILE_LOGGING', 'false').lower() == 'true'
 
 LOGGING = {
     'version': 1,
