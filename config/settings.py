@@ -121,6 +121,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # logging
+HANDLERS = ['console']
+if not os.environ.get('RAILWAY_ENVIRONMENT'):
+    HANDLERS.append('file')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -143,7 +147,7 @@ LOGGING = {
     },
     'loggers': {
         'journal': {
-            'handlers': ['console', 'file'],
+            'handlers': HANDLERS,
             'level': 'DEBUG',
         },
     },
