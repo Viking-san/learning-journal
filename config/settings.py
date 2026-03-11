@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import logging.handlers
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -122,7 +123,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # logging
 LOG_FILE = BASE_DIR / 'logs' / 'journal.log'
-USE_FILE_LOGGING = os.environ.get('USE_FILE_LOGGING', 'false').lower() == 'true'
+USE_FILE_LOGGING = config('USE_FILE_LOGGING', default=False, cast=bool)
 
 LOGGING = {
     'version': 1,
@@ -139,7 +140,9 @@ LOGGING = {
             'formatter': 'simple',
         },
         **({'file': {
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,   # 10MB
+            'backupCount': 5,               # Держать 5 старых файлов
             'formatter': 'simple',
             'filename': LOG_FILE,
         }} if USE_FILE_LOGGING else {}),
@@ -151,6 +154,7 @@ LOGGING = {
         },
     },
 }
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,

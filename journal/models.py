@@ -86,7 +86,7 @@ class Entry(models.Model):
     class Meta:
         verbose_name = "Запись"
         verbose_name_plural = "Записи"
-        # ordering = ['-created_at']  # Новые записи сверху
+        ordering = ['-created_at']  # Новые записи сверху
 
     def __str__(self):
         return self.title
