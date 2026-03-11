@@ -15,13 +15,16 @@ class EntryListView(ListView):
     model = Entry
     template_name = 'journal/entry_list.html'
     context_object_name = 'entries'
-    ordering = ['-created_at']
+    # ordering = ['-created_at']
     paginate_by = 10
     
 
     def get_queryset(self):
         q = self.request.GET.get('q', '').strip()
-        queryset = Entry.published.select_related('category').prefetch_related('tags')
+        # queryset = Entry.published.select_related('category').prefetch_related('tags')
+        # queryset = Entry.objects.published().with_details().recent(3)
+        queryset = Entry.objects.published().with_details()
+
         if q:
             queryset = queryset.filter(
                 Q(category__name__icontains=q) |
@@ -36,7 +39,7 @@ class EntryListView(ListView):
         context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
             entry_count=Count('entries')
         )
-        context['total_entries'] = Entry.published.count()
+        context['total_entries'] = Entry.objects.published().count()
         context['tags'] = Tag.objects.all()
         return context
 
@@ -45,7 +48,8 @@ class EntryDetailView(DetailView):
     model = Entry
     template_name = 'journal/entry_detail.html'
     context_object_name = 'entry'
-    queryset = Entry.published.select_related('category').prefetch_related('tags', 'comments')
+    # queryset = Entry.published.select_related('category').prefetch_related('tags', 'comments')
+    queryset = Entry.objects.published().with_full_details()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,11 +117,14 @@ class CategoryEntriesView(ListView):
     model = Entry
     template_name = 'journal/entry_list.html'
     context_object_name = 'entries'
+    # ordering = ['-created_at']
     paginate_by = 10
 
     def get_queryset(self):
         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-        return Entry.published.filter(category=self.category).select_related('category').prefetch_related('tags').order_by('-created_at')
+        # return Entry.published.filter(category=self.category).select_related('category').prefetch_related('tags').order_by('-created_at')
+        return Entry.objects.published().by_category(self.category).with_details()
+
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
@@ -125,7 +132,7 @@ class CategoryEntriesView(ListView):
             entry_count=Count('entries')
         )
         context['current_category'] = self.category
-        context['total_entries'] = Entry.published.count()
+        context['total_entries'] = Entry.objects.published().count()
         context['tags'] = Tag.objects.all()
         return context
     
@@ -134,18 +141,21 @@ class TagEntriesView(ListView):
     model = Entry
     template_name = 'journal/entry_list.html'
     context_object_name = 'entries'
+    # ordering = ['-created_at']
     paginate_by = 10
 
     def get_queryset(self):
         self.tag = Tag.objects.get(slug=self.kwargs['slug'])
-        return Entry.published.filter(tags=self.tag).select_related('category').prefetch_related('tags').order_by('-created_at')
+        # return Entry.published.filter(tags=self.tag).select_related('category').prefetch_related('tags').order_by('-created_at')
+        return Entry.objects.published().filter(tags=self.tag).with_details()
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
             entry_count=Count('entries')
         )
-        context['total_entries'] = Entry.published.count()
+        context['total_entries'] = Entry.objects.published().count()
         context['current_tag'] = self.tag
         context['tags'] = Tag.objects.all()
         return context
@@ -158,7 +168,7 @@ class StatsView(TemplateView):
         context =  super().get_context_data(**kwargs)
 
         # totals
-        context['total_entries'] = Entry.published.count()
+        context['total_entries'] = Entry.objects.published().count()
         context['total_categories'] = Category.objects.count()
         context['total_tags'] = Tag.objects.count()
 
@@ -173,7 +183,7 @@ class StatsView(TemplateView):
         # entries by weeks(12 weeks)
         twelve_weeks_ago = datetime.now() - timedelta(weeks=12)
         entries_by_week = (
-            Entry.published
+            Entry.objects.published()
             .filter(created_at__gte=twelve_weeks_ago)
             .annotate(week=TruncWeek('created_at'))
             .values('week')

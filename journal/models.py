@@ -45,6 +45,24 @@ class Tag(models.Model):
         return self.name
 
 
+class EntryQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(is_published=True)
+
+    def recent(self, limit=10):
+        return self.order_by('-created_at')[:limit]
+
+    def by_category(self, category):
+        return self.filter(category=category)
+
+    def with_details(self):
+        return self.select_related('category').prefetch_related('tags')
+
+    def with_full_details(self):
+        return self.select_related('category').prefetch_related('tags', 'comments')
+
+
+
 class Entry(models.Model):
     """Запись в дневнике обучения"""
     title = models.CharField(max_length=200, verbose_name="Заголовок")
@@ -61,13 +79,14 @@ class Entry(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
     is_published = models.BooleanField(default=True, verbose_name='Опубликовано')
 
-    objects = models.Manager()  # Стандартный manager
-    published = PublishedManager()  # Custom manager
+    # objects = models.Manager()              # Стандартный manager
+    # published = PublishedManager()          # Custom manager
+    objects = EntryQuerySet.as_manager()    # Custom QuerySet
 
     class Meta:
         verbose_name = "Запись"
         verbose_name_plural = "Записи"
-        ordering = ['-created_at']  # Новые записи сверху
+        # ordering = ['-created_at']  # Новые записи сверху
 
     def __str__(self):
         return self.title
