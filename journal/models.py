@@ -123,6 +123,7 @@ class EntryLog(models.Model):
         verbose_name='Запись'
     )
     entry_title = models.CharField(max_length=200, verbose_name="Заголовок")
+    changed_entry_id = models.PositiveIntegerField(verbose_name='ID')
     action = models.CharField(max_length=10, verbose_name='Действие')
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Время')
 

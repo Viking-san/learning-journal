@@ -1,0 +1,166 @@
+{% extends 'journal/base.html' %}
+
+{% load static %}
+
+{% block title %}История активности - Learning Journal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1>История активности</h1>
+
+        <!-- Статистика -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Создано</h5>
+                        <h2 class="text-success">{{ created|default:0 }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Обновлено</h5>
+                        <h2 class="text-warning">{{ updated|default:0 }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Удалено</h5>
+                        <h2 class="text-danger">{{ deleted|default:0 }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Фильтры -->
+        <form method="get" class="mb-4">
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <select name="action" class="form-select">
+                        <option value="">Все действия</option>
+                        <option value="created" {% if request.GET.action == 'created' %}selected{% endif %}>Создано</option>
+                        <option value="updated" {% if request.GET.action == 'updated' %}selected{% endif %}>Обновлено</option>
+                        <option value="deleted" {% if request.GET.action == 'deleted' %}selected{% endif %}>Удалено</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="search" name="id_search" class="form-control" placeholder="id записи" value="{{ request.GET.id_search }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="search" name="title_search" class="form-control" placeholder="Поиск по заголовку" value="{{ request.GET.title_search }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Таблица логов -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Запись</th>
+                    <th>ID</th>
+                    <th>Действие</th>
+                    <th>Ссылка</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp|date:"d.m.Y H:i" }}</td>
+                    <td>{{ log.entry_title }}</td>
+                    <td>{{ log.changed_entry_id }}</td>
+                    <td>
+                        {% if log.action == 'created' %}
+                            <span class="badge bg-success">Создано</span>
+                        {% elif log.action == 'updated' %}
+                            <span class="badge bg-warning">Обновлено</span>
+                        {% elif log.action == 'deleted' %}
+                            <span class="badge bg-danger">Удалено</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.entry %}
+                            <a href="{% url 'journal:entry_detail' log.entry.pk %}">Открыть</a>
+                        {% else %}
+                            <span class="text-muted">Удалена</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Нет записей</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Назад</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Вперед</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>График</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="activityChart" width="400" height="100"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if USE_CDN %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% else %}
+    <script src="{% static 'journal/js/chart.min.js' %}"></script>
+{% endif %}
+
+<script>
+const ctx = document.getElementById('activityChart');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|safe }},
+        datasets: [{
+            label: 'Активность',
+            data: {{ counts|safe }},
+            borderColor: 'rgb(75, 192, 192)',
+        }]
+    }
+});
+</script>
+{% endblock %}

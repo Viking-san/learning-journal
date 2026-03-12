@@ -15,4 +15,5 @@ urlpatterns = [
     path('category/<slug:slug>/', views.CategoryEntriesView.as_view(), name='category_entries'),
     path('tag/<slug:slug>/', views.TagEntriesView.as_view(), name='tag_entries'),
     path('stats/', views.StatsView.as_view(), name='stats'),
+    path('logs/', views.EntryLogListView.as_view(), name='entry_logs'),
     ]
