@@ -14,7 +14,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5>Создано</h5>
+                        <h5>Создано всего</h5>
                         <h2 class="text-success">{{ stats.created|default:0 }}</h2>
                     </div>
                 </div>
@@ -22,7 +22,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5>Обновлено</h5>
+                        <h5>Обновлено всего</h5>
                         <h2 class="text-warning">{{ stats.updated|default:0 }}</h2>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5>Удалено</h5>
+                        <h5>Удалено всего</h5>
                         <h2 class="text-danger">{{ stats.deleted|default:0 }}</h2>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
 </div>
 <div class="card mb-4">
     <div class="card-header">
-        <h5>График</h5>
+        <h5>График по всем записям за последнюю неделю</h5>
     </div>
     <div class="card-body">
         <canvas id="activityChart" width="400" height="100"></canvas>

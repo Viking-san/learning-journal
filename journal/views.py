@@ -163,11 +163,10 @@ class EntryLogListView(ListView):
     paginate_by = 18
     ordering = ['-timestamp']
 
-    def get_queryset(self):
-        
+    def get_queryset(self):        
         action = self.request.GET.get('action')
-        q = self.request.GET.get('title_search', '').strip()
-        q = self.request.GET.get('id_search', '').strip()
+        title_search = self.request.GET.get('title_search', '').strip()
+        id_search = self.request.GET.get('id_search', '').strip()
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
 
@@ -175,10 +174,10 @@ class EntryLogListView(ListView):
 
         if action:
             queryset = queryset.filter(action=action)
-        if q:
-            queryset = queryset.filter(Q(entry_title__icontains=q))
-        if q:
-            queryset = queryset.filter(Q(changed_entry_id__icontains=q))
+        if title_search:
+            queryset = queryset.filter(entry_title__icontains=title_search)
+        if id_search:
+            queryset = queryset.filter(changed_entry_id=id_search)
         if date_from:
             queryset = queryset.filter(timestamp__date__gte=date_from)
         if date_to:
@@ -201,22 +200,21 @@ class EntryLogListView(ListView):
             .order_by('date')
         )
 
-        dates, created, updated, deleted = [], [], [], []
+        context['dates'] = []
+        context['created_counts'] = []
+        context['updated_counts'] = []
+        context['deleted_counts'] = []
+
         for item in activity_by_day:
             day = item['date'].strftime('%d.%m')
-            if day not in dates:
-                dates.append(day)
+            if day not in context['dates']:
+                context['dates'].append(day)
             if item['action'] == 'created':
-                created.append(item['count'])
+                context['created_counts'].append(item['count'])
             elif item['action'] == 'updated':
-                updated.append(item['count'])
+                context['updated_counts'].append(item['count'])
             elif item['action'] == 'deleted':
-                deleted.append(item['count'])
-
-        context['dates'] = dates
-        context['created_counts'] = created
-        context['updated_counts'] = updated
-        context['deleted_counts'] = deleted
+                context['deleted_counts'].append(item['count'])
 
         return context
     
