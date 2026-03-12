@@ -11,6 +11,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
+from pprint import pprint
 
 
 class EntryListView(ListView):
@@ -163,27 +164,21 @@ class EntryLogListView(ListView):
     ordering = ['-timestamp']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-
-        # фильтрация по действию
-        action = self.request.GET.get('action')
-        if action:
-            queryset = queryset.filter(action=action)
         
-        # фильтрация по заголовку
+        action = self.request.GET.get('action')
         q = self.request.GET.get('title_search', '').strip()
-        if q:
-            queryset = queryset.filter(Q(entry_title__icontains=q))
-
-        # фильтрация по id
         q = self.request.GET.get('id_search', '').strip()
-        if q:
-            queryset = queryset.filter(Q(changed_entry_id__icontains=q))
-
-        # фильтрация по дате
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
 
+        queryset = super().get_queryset().select_related('entry')
+
+        if action:
+            queryset = queryset.filter(action=action)
+        if q:
+            queryset = queryset.filter(Q(entry_title__icontains=q))
+        if q:
+            queryset = queryset.filter(Q(changed_entry_id__icontains=q))
         if date_from:
             queryset = queryset.filter(timestamp__date__gte=date_from)
         if date_to:
@@ -193,9 +188,8 @@ class EntryLogListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['created'] = EntryLog.objects.filter(action='created').count()
-        context['updated'] = EntryLog.objects.filter(action='updated').count()
-        context['deleted'] = EntryLog.objects.filter(action='deleted').count()
+        stats = EntryLog.objects.values('action').annotate(count=Count('id'))
+        context['stats'] = {item['action']: item['count'] for item in stats}
 
         seven_days_ago = timezone.now() - timedelta(days=7)
         activity_by_day = (
@@ -206,16 +200,23 @@ class EntryLogListView(ListView):
             .annotate(count=Count('id'))
             .order_by('date')
         )
-        context['activity_data'] = activity_by_day
 
-        dates = []
-        counts = []
+        dates, created, updated, deleted = [], [], [], []
         for item in activity_by_day:
-            dates.append(item['date'].strftime('%d.%m'))
-            counts.append(item['count'])
+            day = item['date'].strftime('%d.%m')
+            if day not in dates:
+                dates.append(day)
+            if item['action'] == 'created':
+                created.append(item['count'])
+            elif item['action'] == 'updated':
+                updated.append(item['count'])
+            elif item['action'] == 'deleted':
+                deleted.append(item['count'])
 
         context['dates'] = dates
-        context['counts'] = counts
+        context['created_counts'] = created
+        context['updated_counts'] = updated
+        context['deleted_counts'] = deleted
 
         return context
     

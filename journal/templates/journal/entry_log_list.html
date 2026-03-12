@@ -15,7 +15,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5>Создано</h5>
-                        <h2 class="text-success">{{ created|default:0 }}</h2>
+                        <h2 class="text-success">{{ stats.created|default:0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5>Обновлено</h5>
-                        <h2 class="text-warning">{{ updated|default:0 }}</h2>
+                        <h2 class="text-warning">{{ stats.updated|default:0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5>Удалено</h5>
-                        <h2 class="text-danger">{{ deleted|default:0 }}</h2>
+                        <h2 class="text-danger">{{ stats.deleted|default:0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -155,11 +155,23 @@ new Chart(ctx, {
     type: 'line',
     data: {
         labels: {{ dates|safe }},
-        datasets: [{
-            label: 'Активность',
-            data: {{ counts|safe }},
-            borderColor: 'rgb(75, 192, 192)',
-        }]
+        datasets: [
+            {
+                label: 'Создано',
+                data: {{ created_counts|safe }},
+                borderColor: 'rgb(75, 192, 75)',
+            },
+            {
+                label: 'Обновлено',
+                data: {{ updated_counts|safe }},
+                borderColor: 'rgb(255, 205, 86)',
+            },
+            {
+                label: 'Удалено',
+                data: {{ deleted_counts|safe }},
+                borderColor: 'rgb(255, 99, 132)',
+            }
+        ]
     }
 });
 </script>
