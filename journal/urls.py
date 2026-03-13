@@ -16,5 +16,6 @@ urlpatterns = [
     path('tag/<slug:slug>/', views.TagEntriesView.as_view(), name='tag_entries'),
     path('stats/', views.StatsView.as_view(), name='stats'),
     path('logs/', views.EntryLogListView.as_view(), name='entry_logs'),
-    path('drafts/', views.DraftListView.as_view(), name='draft_list'),
+    path('drafts/', views.DraftListView.as_view(), name='drafts'),
+    path('drafts/<int:pk>/publish/', views.PublishDraftView.as_view(), name='publish_draft'),
     ]

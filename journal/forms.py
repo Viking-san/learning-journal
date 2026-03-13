@@ -1,4 +1,3 @@
-from cProfile import label
 from django import forms
 from .models import Entry, Comment
 
@@ -6,7 +5,7 @@ from .models import Entry, Comment
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        fields = ['title', 'content', 'category', 'tags', 'image']
+        fields = ['title', 'content', 'category', 'tags', 'image', 'is_published']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -28,8 +27,8 @@ class EntryForm(forms.ModelForm):
                 'class': 'form-check-input'
             }),
         }
-        label = {
-            'is_published': 'Опубликовать сразу',
+        labels = {
+            'is_published': 'Опубликовать',
         }
 
 

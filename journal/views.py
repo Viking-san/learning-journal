@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView, View
 from .models import Entry, Category, EntryLog, Tag, Comment
 from .forms import EntryForm, CommentForm
 from django.urls import reverse_lazy
@@ -49,7 +49,7 @@ class DraftListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Entry.objects.filter(is_published=False).with_details()
+        queryset = Entry.objects.published(False).with_details()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -59,11 +59,24 @@ class DraftListView(ListView):
         return context
 
 
+class PublishDraftView(View):
+    """
+    Опубликовать черновик
+    """
+    def post(self, request, pk):
+        entry = get_object_or_404(Entry, pk=pk)
+        if not entry.is_published:
+            entry.is_published = True
+            entry.save()
+
+        return redirect('journal:entry_detail', pk=entry.pk)
+
+
 class EntryDetailView(DetailView):
     model = Entry
     template_name = 'journal/entry_detail.html'
     context_object_name = 'entry'
-    queryset = Entry.objects.published().with_full_details()
+    queryset = Entry.objects.with_full_details()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

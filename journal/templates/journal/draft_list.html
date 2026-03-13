@@ -19,6 +19,13 @@
                                 {{ entry.created_at|date:"d.m.Y" }} | {{ entry.category }}
                             </small>
                         </div>
+                        <div class="btn-group">
+                            <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <form method="post" action="{% url 'journal:publish_draft' entry.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Опубликовать</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}

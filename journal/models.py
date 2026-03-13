@@ -45,8 +45,8 @@ class Tag(models.Model):
 
 
 class EntryQuerySet(models.QuerySet):
-    def published(self):
-        return self.filter(is_published=True)
+    def published(self, status=True):
+        return self.filter(is_published=status)
 
     def recent(self, limit=10):
         return self.order_by('-created_at')[:limit]
