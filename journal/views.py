@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView
-from rest_framework.decorators import action
 from .models import Entry, Category, EntryLog, Tag, Comment
 from .forms import EntryForm, CommentForm
 from django.urls import reverse_lazy
@@ -11,7 +10,6 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
-from pprint import pprint
 
 
 class EntryListView(ListView):
@@ -41,6 +39,23 @@ class EntryListView(ListView):
         )
         context['total_entries'] = Entry.objects.published().count()
         context['tags'] = Tag.objects.all()
+        return context
+
+    
+class DraftListView(ListView):
+    model = Entry
+    template_name = 'journal/draft_list.html'
+    context_object_name = 'drafts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Entry.objects.filter(is_published=False).with_details()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_drafts'] = Entry.objects.filter(is_published=False).count()
+
         return context
 
 

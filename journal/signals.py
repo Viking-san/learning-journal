@@ -5,21 +5,6 @@ from django.conf import settings
 from .models import Entry, EntryLog
 
 
-# @receiver(post_save, sender=Entry)
-# def notify_new_entry(sender, instance, created, **kwargs):
-#     """
-#     Отправить email при создании новой записи
-#     """
-#     if created:
-#         subject = f'Новая запись: {instance.title}'
-#         message = f'Создана запись в категории {instance.category.name}\n\n{instance.content[:200]}...'
-
-#         # Пока просто принтим
-#         print(f'[email] {subject}')
-#         print(f'[email] {message}')
-
-
-
 # Логирование активности записей
 @receiver(post_save, sender=Entry)
 def log_entry_change(sender, instance, created, **kwargs):

@@ -1,3 +1,4 @@
+from cProfile import label
 from django import forms
 from .models import Entry, Comment
 
@@ -23,6 +24,12 @@ class EntryForm(forms.ModelForm):
             'image': forms.FileInput(attrs={
                 'class': 'form-control'
             }),
+            'is_published': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+        label = {
+            'is_published': 'Опубликовать сразу',
         }
 
 
