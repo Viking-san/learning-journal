@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
+from collections import defaultdict
 
 
 class EntryListView(ListView):
@@ -49,12 +50,12 @@ class DraftListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Entry.objects.published(False).with_details()
+        queryset = Entry.objects.drafts().with_details()
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_drafts'] = Entry.objects.filter(is_published=False).count()
+        context['total_drafts'] = Entry.objects.drafts().count()
 
         return context
 
@@ -69,7 +70,7 @@ class PublishDraftView(View):
             entry.is_published = True
             entry.save()
 
-        return redirect('journal:entry_detail', pk=entry.pk)
+        return redirect('journal:entry_detail', pk=pk)
 
 
 class EntryDetailView(DetailView):
@@ -228,21 +229,16 @@ class EntryLogListView(ListView):
             .order_by('date')
         )
 
-        context['dates'] = []
-        context['created_counts'] = []
-        context['updated_counts'] = []
-        context['deleted_counts'] = []
+        data_by_date = defaultdict(lambda: {'created': 0, 'updated': 0, 'deleted': 0})
 
         for item in activity_by_day:
             day = item['date'].strftime('%d.%m')
-            if day not in context['dates']:
-                context['dates'].append(day)
-            if item['action'] == 'created':
-                context['created_counts'].append(item['count'])
-            elif item['action'] == 'updated':
-                context['updated_counts'].append(item['count'])
-            elif item['action'] == 'deleted':
-                context['deleted_counts'].append(item['count'])
+            data_by_date[day][item['action']] = item['count']
+
+        context['dates'] = list(data_by_date.keys())
+        context['created_counts'] = [data_by_date[d]['created'] for d in context['dates']]
+        context['updated_counts'] = [data_by_date[d]['updated'] for d in context['dates']]
+        context['deleted_counts'] = [data_by_date[d]['deleted'] for d in context['dates']]
 
         return context
     

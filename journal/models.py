@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.text import slugify
-from rest_framework.decorators import action
 
 
 class Category(models.Model):
@@ -45,8 +44,11 @@ class Tag(models.Model):
 
 
 class EntryQuerySet(models.QuerySet):
-    def published(self, status=True):
-        return self.filter(is_published=status)
+    def published(self):
+        return self.filter(is_published=True)
+
+    def drafts(self):
+        return self.filter(is_published=False)
 
     def recent(self, limit=10):
         return self.order_by('-created_at')[:limit]
@@ -112,6 +114,12 @@ class Comment(models.Model):
 
 class EntryLog(models.Model):
     """Лог записи"""
+    ACTION_CHOICES = [
+        ('created', 'Created'),
+        ('updated', 'Updated'),
+        ('deleted', 'Deleted'),
+    ]    
+
     entry = models.ForeignKey(
         Entry,
         on_delete=models.SET_NULL,
@@ -119,9 +127,13 @@ class EntryLog(models.Model):
         related_name='entry_logs',
         verbose_name='Запись'
     )
+    action = models.CharField(
+        max_length=10,
+        choices=ACTION_CHOICES,  # ← Добавить
+        verbose_name='Действие'
+        )
     entry_title = models.CharField(max_length=200, verbose_name="Заголовок")
     changed_entry_id = models.PositiveIntegerField(verbose_name='ID')
-    action = models.CharField(max_length=10, verbose_name='Действие')
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Время')
 
     class Meta:

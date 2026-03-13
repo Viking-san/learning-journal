@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Entry, Tag, Comment
+from .models import Category, Entry, Tag, Comment, EntryLog
 
 
 @admin.register(Category)
@@ -28,3 +28,8 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ['author_name', 'entry', 'created_at']
     list_filter = ['created_at']
     search_fields = ['author_name', 'content']
+
+
+@admin.register(EntryLog)
+class EntryLogAdmin(admin.ModelAdmin):
+    list_display = ['timestamp', 'entry_title', 'id', 'action']
