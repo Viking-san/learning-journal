@@ -325,6 +325,40 @@ class EntryCreateViewTest(TestCase):
         self.assertEqual(Entry.objects.count(), 1)
 
 
+class EntryUpdateViewTest(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name='Test')
+        self.tag = Tag.objects.create(name='test tag')
+        self.entry = Entry.objects.create(
+            title='Test entry',
+            content='text',
+            category=self.category
+        )
+        self.response = self.client.get(reverse('journal:entry_update', kwargs={'pk': self.entry.pk}))
+
+    def test_entry_update_view_status(self):
+        """Проверяем что форма редактирования записи доступна"""        
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_entry_update_view_template(self):
+        """Проверяем что используется правильный шаблон"""
+        self.assertTemplateUsed(self.response, 'journal/entry_form.html')
+
+    def test_entry_update_view_post_method(self):
+        """Проверяем что метод post отработал корректно"""
+        new_title = 'Новый title'
+        response = self.client.post(reverse('journal:entry_update', kwargs={'pk': self.entry.pk}), {
+            'title': new_title,
+            'content': self.entry.content,
+            'category': self.category.id
+        })
+        self.entry.refresh_from_db()
+        self.assertEqual(self.entry.title, new_title)
+        self.assertRedirects(response, reverse('journal:entry_detail', kwargs={'pk': self.entry.pk}))
+
+
+
+
 # class EntryAPITest(APITestCase):
 #     """Тесты для API"""
 
