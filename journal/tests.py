@@ -261,6 +261,71 @@ class EntryListViewTest(TestCase):
         self.assertNotIn(self.python_entry, entries)
 
 
+class EntryDetailViewTest(TestCase):
+    """Тесты для страницы просмотра конкретной записи"""
+    def setUp(self):
+        self.category = Category.objects.create(name='Test')
+        self.entry = Entry.objects.create(
+            title='Test entry',
+            content='text',
+            category=self.category)
+        self.response = self.client.get(reverse('journal:entry_detail', kwargs={'pk': self.entry.pk}))
+
+    def test_entry_deatil_view_status(self):
+        """Проверяем что страница конкретной записи доступна"""
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_entry_deatil_view_template(self):
+        """Проверяем что используется правильный шаблон"""
+        self.assertTemplateUsed(self.response, 'journal/entry_detail.html')
+
+    def test_entry_detail_view_context(self):
+        """Проверяем что доступен нужный контекст"""
+        self.assertIn('comments', self.response.context)
+        self.assertIn('form', self.response.context)
+
+    def test_entry_detail_view_post_method(self):
+        """Проверяем что метод post отработал корректно"""
+        response = self.client.post(reverse('journal:entry_detail', kwargs={'pk':self.entry.pk}), {
+            'author_name': 'test_entry_detail_view_post_method',
+            'content': 'text'
+        })
+        
+        self.assertRedirects(response, reverse('journal:entry_detail', kwargs={'pk': self.entry.pk}))
+        comment = self.entry.comments.first()
+        self.assertEqual(comment.author_name, 'test_entry_detail_view_post_method')
+        self.assertEqual(self.entry.comments.count(), 1)
+
+
+class EntryCreateViewTest(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name='Test')
+        self.response = self.client.get(reverse('journal:entry_create'))
+
+    def test_entry_deatil_view_status(self):
+        """Проверяем что страница конкретной записи доступна"""
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_entry_deatil_view_template(self):
+        """Проверяем что используется правильный шаблон"""
+        self.assertTemplateUsed(self.response, 'journal/entry_form.html')
+
+    def test_entry_detail_view_post_method(self):
+        """Проверяем что метод post отработал корректно"""
+        response = self.client.post(reverse('journal:entry_create'), {
+            'title': 'Test',
+            'content': 'Content',
+            'category': self.category.id
+        })
+        print(Entry.objects.all()[0].is_published)
+        
+        # self.assertRedirects(response, reverse('journal:entry_create', kwargs={'pk': self.entry.pk}))
+        # comment = self.entry.comments.first()
+        # self.assertEqual(comment.author_name, 'test_entry_detail_view_post_method')
+        # self.assertEqual(self.entry.comments.count(), 1)
+
+
+
 # class EntryAPITest(APITestCase):
 #     """Тесты для API"""
 
