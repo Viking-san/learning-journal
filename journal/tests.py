@@ -1,9 +1,11 @@
-from django.test import TestCase
+from unicodedata import category
+from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import Category, Entry, Tag, Comment, EntryLog
 from django.db.utils import IntegrityError
+from pprint import pprint
 
 
 class CategoryModelTest(TestCase):
@@ -40,6 +42,15 @@ class TagModelTest(TestCase):
         """Подготовка данных перед каждым тестом"""
         self.tag = Tag.objects.create(name='Test Tag')
 
+    def test_tag_ordering(self):
+        """Проверяем что ordering идет по имени"""
+        Tag.objects.create(name='A first')
+        Tag.objects.create(name='Z last')
+        Tag.objects.create(name='B second')
+
+        names = list(Tag.objects.values_list('name', flat=True))
+        self.assertEqual(names, ['A first', 'B second', 'Test Tag', 'Z last'])
+
     def test_created_at_auto_populated(self):
         """Проверяем что created_at заполняется автоматически"""
         self.assertIsNotNone(self.tag.created_at)
@@ -61,6 +72,15 @@ class EntryModelTest(TestCase):
         self.category = Category.objects.create(name='Test')
         self.tag_a = Tag.objects.create(name='Tag a')
         self.tag_b = Tag.objects.create(name='Tag b')
+
+    def test_entry_str(self):
+        """Проверяем что __str__ возвращает корректную запись"""
+        entry = Entry.objects.create(
+            title='Entry title',
+            content='content',
+            category=self.category
+        )
+        self.assertEqual(str(entry), 'Entry title')
 
     def test_entry_creation(self):
         """Проверяем создание записи"""
@@ -121,12 +141,26 @@ class CommentModelTest(TestCase):
         )
         self.comment = Comment.objects.create(author_name='Anon', content='Test', entry=self.entry)
 
+    def test_comment_ordering(self):
+        """Проверяем ordering отображения Comment"""
+        comment_a = Comment.objects.create(
+            author_name='Second author',
+            content='content',
+            entry=self.entry
+        )
+        comment_b = Comment.objects.create(
+            author_name='First author',
+            content='content',
+            entry=self.entry
+        )
+        titles = list(Comment.objects.values_list('author_name', flat=True))
+        self.assertEqual(titles, ['First author', 'Second author', 'Anon'])
+
     def test_comment_creation(self):
         """Проверка что comment создался корректно"""
         self.assertEqual(self.comment.author_name, 'Anon')
         self.assertEqual(self.comment.content, 'Test')
         self.assertIsNotNone(self.comment.created_at)
-
 
     def test_comment_str(self):
         """Проверяем что __str__ возвращает корректную запись"""
@@ -147,21 +181,35 @@ class EntryLogModelTest(TestCase):
         )
         self.entrylog_line = EntryLog.objects.create(
             entry=self.entry, 
-            action='created', 
+            action='updated', 
             entry_title='Test title', 
             changed_entry_id=1
         )
 
+    def test_entrylog_ordering(self):
+        """Проверяем что ordering идет по дате - новые записи первые"""
+        EntryLog.objects.create(
+            entry=self.entry, action='created', 
+            entry_title='First', changed_entry_id=10
+        )
+        EntryLog.objects.create(
+            entry=self.entry, action='updated', 
+            entry_title='Second', changed_entry_id=11
+        )
+        logs = list(EntryLog.objects.values_list('entry_title', flat=True))
+        self.assertEqual(logs[0], 'Second')
+        self.assertEqual(logs[1], 'First')
+
     def test_entrylog_creation(self):
         """Тест проверки корректно созданного EntryLog"""
-        self.assertEqual(self.entrylog_line.action, 'created')
+        self.assertEqual(self.entrylog_line.action, 'updated')
         self.assertEqual(self.entrylog_line.changed_entry_id, 1)
         self.assertIsNotNone(self.entrylog_line.timestamp)
 
     def test_entrylog_str(self):
         """Проверяем что __str__ возвращает корректную запись"""
-        line = str(self.entrylog_line).split(' - ', 1)[1]
-        self.assertEqual(line, 'Test title - created')
+        expected = f'{self.entrylog_line.timestamp} - Test title - updated'
+        self.assertEqual(str(self.entrylog_line), expected)
         
     def test_action_field(self):
         """Проверяем что важные значения action проходят без ошибок"""
@@ -175,13 +223,42 @@ class EntryLogModelTest(TestCase):
             self.assertEqual(entrylog_line.action, action)
 
 
-# class EntryListViewTest(TestCase):
-#     """Тесты для главной страницы"""
+class EntryListViewTest(TestCase):
+    """Тесты для главной страницы"""
+    def setUp(self):
+        self.response = self.client.get(reverse('journal:entry_list'))
+        
+        self.category = Category.objects.create(name='Test')
+        self.django_entry = Entry.objects.create(
+            title='Django entry',
+            content='text',
+            category=self.category)
+        self.python_entry = Entry.objects.create(
+            title='Python entry',
+            content='text',
+            category=self.category)
 
-#     def test_entry_list_view_status(self):
-#         """Проверяем что главная страница доступна"""
-#         response = self.client.get(reverse('journal:entry_list'))
-#         self.assertEqual(response.status_code, 200)
+    def test_entry_list_view_status(self):
+        """Проверяем что главная страница доступна"""
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_entry_list_view_template(self):
+        """Проверяем что используется правильный шаблон"""
+        self.assertTemplateUsed(self.response, 'journal/entry_list.html')
+
+    def test_entry_list_view_context(self):
+        """Проверяем что доступен нужный контекст"""
+        self.assertIn('entries', self.response.context)
+        self.assertIn('total_entries', self.response.context)
+        self.assertIn('categories', self.response.context)
+        self.assertIn('tags', self.response.context)
+
+    def test_entry_list_view_filtration(self):
+        """Проверяем фильтрацию в EntryListView"""
+        response = self.client.get(reverse('journal:entry_list') + '?q=django')
+        entries = response.context['entries']
+        self.assertIn(self.django_entry, entries)
+        self.assertNotIn(self.python_entry, entries)
 
 
 # class EntryAPITest(APITestCase):
