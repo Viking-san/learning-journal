@@ -302,28 +302,27 @@ class EntryCreateViewTest(TestCase):
         self.category = Category.objects.create(name='Test')
         self.response = self.client.get(reverse('journal:entry_create'))
 
-    def test_entry_deatil_view_status(self):
-        """Проверяем что страница конкретной записи доступна"""
+    def test_entry_create_view_status(self):
+        """Проверяем что форма создания записи доступна"""
         self.assertEqual(self.response.status_code, 200)
 
-    def test_entry_deatil_view_template(self):
+    def test_entry_create_view_template(self):
         """Проверяем что используется правильный шаблон"""
         self.assertTemplateUsed(self.response, 'journal/entry_form.html')
 
-    def test_entry_detail_view_post_method(self):
+    def test_entry_create_view_post_method(self):
         """Проверяем что метод post отработал корректно"""
         response = self.client.post(reverse('journal:entry_create'), {
-            'title': 'Test',
+            'title': 'test_entry_create_view_post_method',
             'content': 'Content',
             'category': self.category.id
         })
-        print(Entry.objects.all()[0].is_published)
         
-        # self.assertRedirects(response, reverse('journal:entry_create', kwargs={'pk': self.entry.pk}))
-        # comment = self.entry.comments.first()
-        # self.assertEqual(comment.author_name, 'test_entry_detail_view_post_method')
-        # self.assertEqual(self.entry.comments.count(), 1)
+        entry = Entry.objects.get(title='test_entry_create_view_post_method')
 
+        self.assertRedirects(response, reverse('journal:entry_detail', kwargs={'pk': entry.pk}))
+        self.assertEqual(entry.title, 'test_entry_create_view_post_method')
+        self.assertEqual(Entry.objects.count(), 1)
 
 
 # class EntryAPITest(APITestCase):
