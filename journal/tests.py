@@ -4,6 +4,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import Category, Entry, Tag, Comment, EntryLog
+from .views import EntryListView, DraftListView
 from django.db.utils import IntegrityError
 from pprint import pprint
 
@@ -225,9 +226,7 @@ class EntryLogModelTest(TestCase):
 
 class EntryListViewTest(TestCase):
     """Тесты для главной страницы"""
-    def setUp(self):
-        self.response = self.client.get(reverse('journal:entry_list'))
-        
+    def setUp(self):        
         self.category = Category.objects.create(name='Test')
         self.django_entry = Entry.objects.create(
             title='Django entry',
@@ -237,6 +236,8 @@ class EntryListViewTest(TestCase):
             title='Python entry',
             content='text',
             category=self.category)
+        
+        self.response = self.client.get(reverse('journal:entry_list'))
 
     def test_entry_list_view_status(self):
         """Проверяем что главная страница доступна"""
@@ -259,6 +260,22 @@ class EntryListViewTest(TestCase):
         entries = response.context['entries']
         self.assertIn(self.django_entry, entries)
         self.assertNotIn(self.python_entry, entries)
+
+    def test_entry_list_view_pagination(self):
+        """Проверяем корректность paginate_by"""
+        page_size = EntryListView.paginate_by
+
+        for i in range(page_size + 1):
+            Entry.objects.create(
+                title=f'Entry {i}',
+                content='text',
+                category=self.category
+            )
+
+        response = self.client.get(reverse('journal:entry_list'))
+
+        self.assertTrue(response.context['is_paginated'])
+        self.assertEqual(len(response.context['entries']), page_size)
 
 
 class EntryDetailViewTest(TestCase):
@@ -355,6 +372,66 @@ class EntryUpdateViewTest(TestCase):
         self.entry.refresh_from_db()
         self.assertEqual(self.entry.title, new_title)
         self.assertRedirects(response, reverse('journal:entry_detail', kwargs={'pk': self.entry.pk}))
+
+
+class DraftListViewTest(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name='Test category')
+        self.response = self.client.get(reverse('journal:drafts'))
+
+    def test_draft_list_view_status(self):
+        """Проверяем что страница с черновиками доступна"""        
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_entry_update_view_template(self):
+        """Проверяем что используется правильный шаблон"""
+        self.assertTemplateUsed(self.response, 'journal/draft_list.html')
+
+    def test_entry_list_view_context(self):
+        """Проверяем что доступен нужный контекст"""
+        self.assertIn('total_drafts', self.response.context)
+
+    def test_draft_list_view_filtration(self):
+        """Проверяем что в DraftListView попадают только не опубликованные записи"""
+        
+        public_entry = Entry.objects.create(
+            title='Public Entry',
+            content='Text',
+            category=self.category,
+            is_published=True
+        )
+        draft_entry = Entry.objects.create(
+            title='Draft Entry',
+            content='Text',
+            category=self.category,
+            is_published=False
+        )
+
+        response = self.client.get(reverse('journal:drafts'))
+        drafts_list = response.context['drafts']
+
+        self.assertIn(draft_entry, drafts_list)
+        self.assertNotIn(public_entry, drafts_list)
+        self.assertEqual(drafts_list.count(), 1)
+
+    def test_draft_list_view_pagination(self):
+        """Проверяем корректность paginate_by"""
+        page_size = DraftListView.paginate_by
+
+        for i in range(page_size + 1):
+            Entry.objects.create(
+                title=f'Draft Entry {i}',
+                content='text',
+                category=self.category,
+                is_published=False
+            )
+
+        response = self.client.get(reverse('journal:drafts'))
+
+        self.assertTrue(response.context['is_paginated'])
+        self.assertEqual(len(response.context['drafts']), page_size)
+
+
 
 
 
