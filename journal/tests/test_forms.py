@@ -30,6 +30,7 @@ class EntryFormTest(TestCase):
         }
         form = EntryForm(data=form_data)
         self.assertFalse(form.is_valid())
+        self.assertIn('category', form.errors)
 
     def test_form_defaults(self):
         """Проверка поведения is_published default при создании через форму"""

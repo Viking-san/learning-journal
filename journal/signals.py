@@ -15,6 +15,7 @@ def log_entry_change(sender, instance, created, **kwargs):
         action=action, 
         changed_entry_id=instance.id
     )
+    print(f'[log] {instance.title} - {action}')
 
 
 @receiver(pre_delete, sender=Entry)
@@ -25,3 +26,4 @@ def log_entry_delete(sender, instance, **kwargs):
         action='deleted', 
         changed_entry_id=instance.id
     )
+    print(f'[log] {instance.title} - deleted')

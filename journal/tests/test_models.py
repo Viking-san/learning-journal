@@ -18,7 +18,11 @@ class CategoryModelTest(TestCase):
         self.assertEqual(str(self.category), 'Test Category')
 
     def test_category_description(self):
-        """Проверяем что описание пустое по умолчанию"""
+        """Проверяем поведение description и что описание пустое по умолчанию"""
+        description_text = 'Description text'
+        category = Category.objects.create(name='New category', description=description_text)
+        self.assertEqual(category.description, description_text)
+        
         self.assertEqual(self.category.description, '')
 
     def test_category_ordering(self):

@@ -1,6 +1,7 @@
 from ..models import Category, Entry, EntryLog
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
 
 
 class SignalsTest(TestCase):
@@ -54,3 +55,27 @@ class SignalsTest(TestCase):
         log = EntryLog.objects.latest('timestamp')
         self.assertEqual(log.action, 'deleted')
         self.assertEqual(log.changed_entry_id, entry_id)
+
+    @patch('journal.signals.print')
+    def test_signal_prints_log_message(self, mock_print):
+        """Signal печатает сообщение при создании Entry"""
+        entry = Entry.objects.create(
+            title='Test',
+            content='Content',
+            category=self.category
+        )
+        # Проверяем что print был вызван с правильным сообщением
+        mock_print.assert_called_with(f'[log] {entry.title} - created')
+
+        self.client.post(reverse('journal:entry_update', kwargs={'pk': entry.pk}), {
+            'title': 'test_signal_prints_log_message',
+            'content': self.entry.content,
+            'category': self.category.id
+        })
+        entry.refresh_from_db()
+        mock_print.assert_called_with(f'[log] {entry.title} - updated')
+
+        entry_title = entry.title
+        entry.delete()
+        mock_print.assert_called_with(f'[log] {entry_title} - deleted')
+
