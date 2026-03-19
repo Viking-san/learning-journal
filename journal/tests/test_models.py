@@ -124,6 +124,29 @@ class EntryModelTest(TestCase):
         self.assertIn(self.tag_a, entry.tags.all())
         self.assertIn(self.tag_b, entry.tags.all())
 
+    def test_entry_category_filtering(self):
+        """Проверяем фильтрацию по категориям"""
+        second_category = Category.objects.create(name='second category')
+        entry_a = Entry.objects.create(
+            title='entry_a',
+            content='content',
+            category=self.category
+        )
+        entry_b = Entry.objects.create(
+            title='entry_b',
+            content='content',
+            category=self.category
+        )
+        entry_c = Entry.objects.create(
+            title='entry_c',
+            content='content',
+            category=second_category
+        )
+        entries = Entry.objects.by_category(self.category)
+        self.assertIn(entry_a, entries)
+        self.assertIn(entry_b, entries)
+        self.assertNotIn(entry_c, entries)
+
 
 class CommentModelTest(TestCase):
     """Тесты для модели Comment"""
