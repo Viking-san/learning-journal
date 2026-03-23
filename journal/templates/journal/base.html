@@ -55,12 +55,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <form class="d-flex ms-auto" method="get" action="{% url 'journal:entry_list' %}">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск..." 
-                        value="{{ request.GET.q }}">
-                     <button class="btn btn-sm" style="color: #adb5bd; border-color: #adb5bd;" type="submit">Найти</button>
-                </form>
-                <ul class="navbar-nav ms-3">                    
+                <ul class="navbar-nav me-auto">                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'journal:entry_list' %}">Главная</a>
                     </li>
@@ -80,6 +75,23 @@
                         <a class="nav-link" href="/admin/">Админка</a>
                     </li>                    
                 </ul>
+                <form class="d-flex me-3" method="get" action="{% url 'journal:entry_list' %}">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Поиск..." 
+                        value="{{ request.GET.q }}">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Найти</button>
+                </form>
+                <div class="d-flex align-items-center gap-2">
+                    {% if request.user.is_authenticated %}
+                        <span class="navbar-text text-muted">{{ request.user.username }}</span>
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Выйти</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-success">Войти</a>
+                        <a href="{% url 'signup' %}" class="btn btn-sm btn-primary">Регистрация</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>

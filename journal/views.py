@@ -11,6 +11,13 @@ from rest_framework.permissions import AllowAny
 from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
 from collections import defaultdict
+from django.contrib.auth.forms import UserCreationForm
+
+
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
 
 
 class EntryListView(ListView):

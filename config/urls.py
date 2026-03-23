@@ -18,11 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from journal.views import SignUpView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('journal.api_urls')),
-    path('', include('journal.urls'))
+    path('', include('journal.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/signup/', SignUpView.as_view(), name='signup'),
 ]
 
 if settings.DEBUG:
