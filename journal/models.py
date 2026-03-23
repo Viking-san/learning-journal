@@ -1,5 +1,7 @@
+from tabnanny import verbose
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -67,6 +69,14 @@ class EntryQuerySet(models.QuerySet):
 class Entry(models.Model):
     """Запись в дневнике обучения"""
     title = models.CharField(max_length=200, verbose_name="Заголовок")
+    author = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='entries', 
+        verbose_name='Автор'
+    )
     content = models.TextField(verbose_name="Содержание")
     category = models.ForeignKey(
         Category,
