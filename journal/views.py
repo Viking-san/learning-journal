@@ -12,6 +12,8 @@ from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
 from collections import defaultdict
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 
 
 class SignUpView(CreateView):
@@ -36,6 +38,7 @@ class EntryListView(ListView):
                 Q(category__name__icontains=q) |
                 Q(tags__name__icontains=q) |
                 Q(title__icontains=q) |
+                Q(author__username__icontains=q) |
                 Q(content__icontains=q)
             ).distinct()
         return queryset
@@ -50,29 +53,31 @@ class EntryListView(ListView):
         return context
 
     
-class DraftListView(ListView):
+class DraftListView(LoginRequiredMixin, ListView):
     model = Entry
     template_name = 'journal/draft_list.html'
     context_object_name = 'drafts'
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Entry.objects.drafts().with_details()
+        queryset = Entry.objects.drafts().with_details().filter(author=self.request.user)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_drafts'] = Entry.objects.drafts().count()
+        context['total_drafts'] = Entry.objects.drafts().filter(author=self.request.user).count()
 
         return context
 
 
-class PublishDraftView(View):
+class PublishDraftView(LoginRequiredMixin, View):
     """
     Опубликовать черновик
     """
     def post(self, request, pk):
         entry = get_object_or_404(Entry, pk=pk)
+        if entry.author != request.user:
+            raise PermissionDenied
         if not entry.is_published:
             entry.is_published = True
             entry.save()
@@ -107,7 +112,7 @@ class EntryDetailView(DetailView):
         return self.render_to_response(context)
 
 
-class EntryCreateView(CreateView):
+class EntryCreateView(LoginRequiredMixin, CreateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
@@ -120,19 +125,27 @@ class EntryCreateView(CreateView):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})
 
 
-class EntryUpdateView(UpdateView):
+class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
 
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})
 
 
-class EntryDeleteView(DeleteView):
+class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Entry
     template_name = 'journal/entry_confirm_delete.html'
     success_url = reverse_lazy('journal:entry_list')
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
 
 
 class CommentUpdateView(UpdateView):

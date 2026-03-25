@@ -59,10 +59,10 @@ class EntryQuerySet(models.QuerySet):
         return self.filter(category=category)
 
     def with_details(self):
-        return self.select_related('category').prefetch_related('tags')
+        return self.select_related('category', 'author').prefetch_related('tags')
 
     def with_full_details(self):
-        return self.select_related('category').prefetch_related('tags', 'comments')
+        return self.select_related('category', 'author').prefetch_related('tags', 'comments')
 
 
 

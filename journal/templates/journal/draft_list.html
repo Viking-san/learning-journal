@@ -25,6 +25,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm btn-success">Опубликовать</button>
                             </form>
+                            <a href="{% url 'journal:entry_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
                         </div>
                     </div>
                 </div>
