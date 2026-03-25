@@ -18,4 +18,5 @@ urlpatterns = [
     path('logs/', views.EntryLogListView.as_view(), name='entry_logs'),
     path('drafts/', views.DraftListView.as_view(), name='drafts'),
     path('drafts/<int:pk>/publish/', views.PublishDraftView.as_view(), name='publish_draft'),
+    path('author/<str:username>/', views.AuthorEntriesView.as_view(), name='author_entries'),
     ]

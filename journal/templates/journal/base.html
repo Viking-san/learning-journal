@@ -82,7 +82,10 @@
                 </form>
                 <div class="d-flex align-items-center gap-2">
                     {% if request.user.is_authenticated %}
-                        <span class="navbar-text text-light">{{ request.user.username }}</span>
+                        <a href="{% url 'journal:author_entries' request.user.username %}" class="navbar-text text-decoration-none text-light"
+                           style="font-size: 1.2em; font-weight: 300; color: rgba(248,249,250,0.95);">
+                            {{ request.user.username }}
+                        </a>
                         <form method="post" action="{% url 'logout' %}" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-secondary">Выйти</button>

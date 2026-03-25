@@ -15,8 +15,15 @@
                 <p class="text-muted mb-0"><span class="badge bg-secondary" style="font-size: 1.5rem;">Черновик</span></p>
                 {% endif %}
                 <h1 class="card-title">{{ entry.title }}</h1>
-                <p class="text-muted small mb-2">
-                    Автор: {% if entry.author %}{{ entry.author.username }}{% else %}Deleted{% endif %}
+                <p class="mb-2" style="font-size: 1.2rem; font-weight: 300; color: rgba(255,255,255,0.9);">
+                    <span class="text-muted">Автор:</span>
+                    {% if entry.author %}
+                        <a href="{% url 'journal:author_entries' entry.author.username %}" class="text-decoration-none" style="color: inherit;">
+                            {{ entry.author.username }}
+                        </a>
+                    {% else %}
+                        Deleted
+                    {% endif %}
                 </p>
                 <div class="mb-3">
                     <span class="badge bg-primary">{{ entry.category }}</span>

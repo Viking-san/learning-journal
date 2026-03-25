@@ -14,6 +14,7 @@ from collections import defaultdict
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import User
 
 
 class SignUpView(CreateView):
@@ -45,6 +46,7 @@ class EntryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['page_title'] = f'Все записи'
         context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
             entry_count=Count('entries')
         )
@@ -132,7 +134,7 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user
+        return obj.author == self.request.user or self.request.user.groups.filter(name='Administrator').exists()
 
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.pk})
@@ -145,7 +147,7 @@ class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user
+        return obj.author == self.request.user or self.request.user.groups.filter(name='Administrator').exists()
 
 
 class CommentUpdateView(UpdateView):
@@ -178,6 +180,7 @@ class CategoryEntriesView(ListView):
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
+        context['page_title'] = f'Все записи в категории: {self.category}'
         context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
             entry_count=Count('entries')
         )
@@ -200,11 +203,34 @@ class TagEntriesView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['page_title'] = f'Все записи с тегом: {self.tag}'
         context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
             entry_count=Count('entries')
         )
         context['total_entries'] = Entry.objects.published().count()
         context['current_tag'] = self.tag
+        context['tags'] = Tag.objects.all()
+        return context
+
+
+class AuthorEntriesView(ListView):
+    model = Entry
+    template_name = 'journal/entry_list.html'
+    context_object_name = 'entries'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.author = get_object_or_404(User, username=self.kwargs['username'])
+        return Entry.objects.published().filter(author=self.author).with_details()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = f'Все записи пользователя: {self.author}'
+        context['categories'] = Category.objects.filter(entries__is_published=True).annotate(
+            entry_count=Count('entries')
+        )
+        context['total_entries'] = Entry.objects.published().filter(author=self.author).count()
+        context['current_author'] = self.author
         context['tags'] = Tag.objects.all()
         return context
 

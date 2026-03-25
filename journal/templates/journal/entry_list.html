@@ -7,14 +7,21 @@
 <div class="row">
     <div class="col-lg-9">
         <!-- <h1 class="mb-4">Мои записи</h1> -->
-        <h1 class="mb-4"></h1>
+        <h1 class="mb-4">{{ page_title|default:"Записи" }}</h1>
         {% if entries %}
             {% for entry in entries %}
             <div class="card mb-3">
                 <div class="card-body">
                     <h4 class="card-title fw-bold" style="font-size: 1.7rem;">{{ entry.title }}</h4>
-                    <p class="card-subtitle mb-2 text-muted small">
-                        Автор: {% if entry.author %}{{ entry.author.username }}{% else %}Deleted{% endif %}
+                    <p class="card-subtitle mb-2" style="font-size: 1.2rem; font-weight: 300; color: rgba(255,255,255,0.9);">
+                        <span class="text-muted">Автор:</span>
+                        {% if entry.author %}
+                            <a href="{% url 'journal:author_entries' entry.author.username %}" class="text-decoration-none" style="color: inherit;">
+                                {{ entry.author.username }}
+                            </a>
+                        {% else %}
+                            Deleted
+                        {% endif %}
                     </p>
                     <h6 class="card-subtitle mb-2 text-muted">
                         <span class="badge bg-primary">{{ entry.category }}</span>
