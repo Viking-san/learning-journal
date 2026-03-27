@@ -69,7 +69,6 @@ class CommentFormTest(TestCase):
     def test_form_is_valid(self):
         """Проверка валидности формы"""
         form_data = {
-            'author_name': 'Anon',
             'content': 'Comment text'
         }
         form = CommentForm(data=form_data)        
