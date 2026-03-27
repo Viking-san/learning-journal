@@ -1,6 +1,7 @@
 from ..models import Category, Entry, Tag, Comment, EntryLog
 from django.test import TestCase
 from django.db.utils import IntegrityError
+from django.contrib.auth.models import User
 
 
 class CategoryModelTest(TestCase):
@@ -161,32 +162,37 @@ class CommentModelTest(TestCase):
             content='content',
             category=self.category
         )
-        self.comment = Comment.objects.create(author_name='Anon', content='Test', entry=self.entry)
+        self.user = User.objects.create_user('test', password='pass')
+        self.comment = Comment.objects.create(author_name=self.user, content='Test', entry=self.entry)
 
     def test_comment_ordering(self):
         """Проверяем ordering отображения Comment"""
+        second_author = User.objects.create_user('Second author', password='pass')
+        first_author = User.objects.create_user('First author', password='pass')
+
         comment_a = Comment.objects.create(
-            author_name='Second author',
+            author_name=second_author,
             content='content',
             entry=self.entry
         )
         comment_b = Comment.objects.create(
-            author_name='First author',
+            author_name=first_author,
             content='content',
             entry=self.entry
         )
-        titles = list(Comment.objects.values_list('author_name', flat=True))
-        self.assertEqual(titles, ['First author', 'Second author', 'Anon'])
+        titles = list(Comment.objects.values_list('author_name__username', flat=True))
+        self.assertEqual(titles, ['First author', 'Second author', 'test'])
 
     def test_comment_creation(self):
         """Проверка что comment создался корректно"""
-        self.assertEqual(self.comment.author_name, 'Anon')
+        self.assertEqual(str(self.comment.author_name), 'test')
         self.assertEqual(self.comment.content, 'Test')
         self.assertIsNotNone(self.comment.created_at)
 
     def test_comment_str(self):
         """Проверяем что __str__ возвращает корректную запись"""
-        self.assertEqual(str(self.comment), 'Комментарий от Anon к Test Entry')
+        print(str(self.comment))
+        self.assertEqual(str(self.comment), 'Комментарий от test к Test Entry')
 
     def test_comment_entry_foreignkey(self):
         """Проверка связи comment с Entry через ForeignKey"""
