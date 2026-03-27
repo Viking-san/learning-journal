@@ -60,6 +60,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'journal.context_processors.cdn_settings',
+                'journal.context_processors.user_groups',
             ],
         },
     },

@@ -106,6 +106,10 @@ class EntryDetailView(DetailView):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.entry = self.object
+            if self.request.user.is_authenticated:
+                comment.author_name = self.request.user
+            else:
+                comment.author_name = None
             comment.save()
             return redirect('journal:entry_detail', pk=self.object.pk)
 
@@ -150,18 +154,26 @@ class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return obj.author == self.request.user or self.request.user.groups.filter(name='Administrator').exists()
 
 
-class CommentUpdateView(UpdateView):
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     template_name = 'journal/comment_form.html'
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author_name == self.request.user or self.request.user.groups.filter(name='Administrator').exists()
 
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.entry.pk})
     
 
-class CommentDeleteView(DeleteView):
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'journal/comment_confirm_delete.html'
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author_name == self.request.user or self.request.user.groups.filter(name='Administrator').exists()
 
     def get_success_url(self):
         return reverse_lazy('journal:entry_detail', kwargs={'pk': self.object.entry.pk})
@@ -235,12 +247,18 @@ class AuthorEntriesView(ListView):
         return context
 
 
-class EntryLogListView(ListView):
+class EntryLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = EntryLog
     template_name = 'journal/entry_log_list.html'
     context_object_name = 'logs'
     paginate_by = 18
     ordering = ['-timestamp']
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='Administrator').exists()
+    
+    def handle_no_permission(self):
+        return redirect('journal:entry_list')
 
     def get_queryset(self):        
         action = self.request.GET.get('action')
@@ -293,8 +311,14 @@ class EntryLogListView(ListView):
         return context
     
 
-class StatsView(TemplateView):
+class StatsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'journal/stats.html'
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='Administrator').exists()
+    
+    def handle_no_permission(self):
+        return redirect('journal:entry_list')
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)

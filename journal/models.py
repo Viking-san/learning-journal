@@ -62,7 +62,7 @@ class EntryQuerySet(models.QuerySet):
         return self.select_related('category', 'author').prefetch_related('tags')
 
     def with_full_details(self):
-        return self.select_related('category', 'author').prefetch_related('tags', 'comments')
+        return self.select_related('category', 'author').prefetch_related('tags', 'comments', 'comments__author_name')
 
 
 
@@ -109,7 +109,15 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Запись'
     )
-    author_name = models.CharField(max_length=100, verbose_name='Имя автора')
+    # author_name = models.CharField(max_length=100, verbose_name='Имя автора', null=True)
+    author_name = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='comments', 
+        verbose_name='Имя автора'
+    )
     content = models.TextField(verbose_name='Текст комментария')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
 

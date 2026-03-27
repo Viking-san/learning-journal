@@ -35,7 +35,8 @@ class EntryForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['author_name', 'content']
+        # fields = ['author_name', 'content']
+        fields = ['content']
         widgets = {
             'author_name': forms.TextInput(attrs={
                 'class': 'form-control',
