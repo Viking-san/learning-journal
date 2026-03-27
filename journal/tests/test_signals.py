@@ -2,15 +2,19 @@ from ..models import Category, Entry, EntryLog
 from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
+from django.contrib.auth.models import User
 
 
 class SignalsTest(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name='Test category')
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.entry = Entry.objects.create(
             title='Test Entry',
             content='text',
-            category=self.category
+            category=self.category,
+            author=self.user
         )
 
         self.entrylog_lines = EntryLog.objects.count()
@@ -59,7 +63,11 @@ class SignalsTest(TestCase):
     @patch('journal.signals.print')
     def test_signal_prints_log_message(self, mock_print):
         """Signal печатает сообщение при создании Entry"""
+        
+        user = User.objects.create_user('user', password='pass')
+        self.client.login(username='user', password='pass')
         entry = Entry.objects.create(
+            author=user,
             title='Test',
             content='Content',
             category=self.category
@@ -68,6 +76,7 @@ class SignalsTest(TestCase):
         mock_print.assert_called_with(f'[log] {entry.title} - created')
 
         self.client.post(reverse('journal:entry_update', kwargs={'pk': entry.pk}), {
+            'author': user,
             'title': 'test_signal_prints_log_message',
             'content': self.entry.content,
             'category': self.category.id
