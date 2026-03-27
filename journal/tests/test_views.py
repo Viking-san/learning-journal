@@ -2,17 +2,22 @@ from ..models import Category, Entry, Tag
 from ..views import EntryListView, DraftListView
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 
 class EntryListViewTest(TestCase):
     """Тесты для главной страницы"""
     def setUp(self):        
         self.category = Category.objects.create(name='Test')
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.django_entry = Entry.objects.create(
+            author=self.user,
             title='Django entry',
             content='text',
             category=self.category)
         self.python_entry = Entry.objects.create(
+            author=self.user,
             title='Python entry',
             content='text',
             category=self.category)
@@ -62,7 +67,10 @@ class EntryDetailViewTest(TestCase):
     """Тесты для страницы просмотра конкретной записи"""
     def setUp(self):
         self.category = Category.objects.create(name='Test')
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.entry = Entry.objects.create(
+            author=self.user,
             title='Test entry',
             content='text',
             category=self.category)
@@ -84,19 +92,21 @@ class EntryDetailViewTest(TestCase):
     def test_entry_detail_view_post_method(self):
         """Проверяем что метод post отработал корректно"""
         response = self.client.post(reverse('journal:entry_detail', kwargs={'pk':self.entry.pk}), {
-            'author_name': 'test_entry_detail_view_post_method',
-            'content': 'text'
+            'author_name': self.user,
+            'content': 'test_entry_detail_view_post_method'
         })
         
         self.assertRedirects(response, reverse('journal:entry_detail', kwargs={'pk': self.entry.pk}))
         comment = self.entry.comments.first()
-        self.assertEqual(comment.author_name, 'test_entry_detail_view_post_method')
+        self.assertEqual(comment.content, 'test_entry_detail_view_post_method')
         self.assertEqual(self.entry.comments.count(), 1)
 
 
 class EntryCreateViewTest(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name='Test')
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.response = self.client.get(reverse('journal:entry_create'))
 
     def test_entry_create_view_status(self):
@@ -126,7 +136,10 @@ class EntryUpdateViewTest(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name='Test')
         self.tag = Tag.objects.create(name='test tag')
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.entry = Entry.objects.create(
+            author=self.user,
             title='Test entry',
             content='text',
             category=self.category
@@ -137,7 +150,7 @@ class EntryUpdateViewTest(TestCase):
         """Проверяем что форма редактирования записи доступна"""        
         self.assertEqual(self.response.status_code, 200)
 
-    def test_entry_update_view_template(self):
+    def test_published_entry_update_view_template(self):
         """Проверяем что используется правильный шаблон"""
         self.assertTemplateUsed(self.response, 'journal/entry_form.html')
 
@@ -156,6 +169,8 @@ class EntryUpdateViewTest(TestCase):
 
 class DraftListViewTest(TestCase):
     def setUp(self):
+        self.user = User.objects.create_user('test', password='pass')
+        self.client.login(username='test', password='pass')
         self.category = Category.objects.create(name='Test category')
         self.response = self.client.get(reverse('journal:drafts'))
 
@@ -163,7 +178,7 @@ class DraftListViewTest(TestCase):
         """Проверяем что страница с черновиками доступна"""        
         self.assertEqual(self.response.status_code, 200)
 
-    def test_entry_update_view_template(self):
+    def test_unpublished_entry_update_view_template(self):
         """Проверяем что используется правильный шаблон"""
         self.assertTemplateUsed(self.response, 'journal/draft_list.html')
 
@@ -175,12 +190,14 @@ class DraftListViewTest(TestCase):
         """Проверяем что в DraftListView попадают только не опубликованные записи"""
         
         public_entry = Entry.objects.create(
+            author=self.user,
             title='Public Entry',
             content='Text',
             category=self.category,
             is_published=True
         )
         draft_entry = Entry.objects.create(
+            author=self.user,
             title='Draft Entry',
             content='Text',
             category=self.category,
@@ -200,6 +217,7 @@ class DraftListViewTest(TestCase):
 
         for i in range(page_size + 1):
             Entry.objects.create(
+                author=self.user,
                 title=f'Draft Entry {i}',
                 content='text',
                 category=self.category,
