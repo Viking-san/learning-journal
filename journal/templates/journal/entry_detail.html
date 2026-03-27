@@ -55,10 +55,12 @@
                 <!-- Контент -->
                 <div class="card-text">{{ entry.content|markdown }}</div>
 
-                <div class="d-flex gap-2 mt-3">
-                    <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
-                    <a href="{% url 'journal:entry_delete' entry.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>
-                </div>
+                {% if request.user.is_authenticated and is_admin or request.user.is_authenticated and entry.author == request.user %}
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
+                        <a href="{% url 'journal:entry_delete' entry.pk %}" class="btn btn-outline-danger btn-sm">Удалить</a>
+                    </div>
+                {% endif %}
 
                 <hr>
                 <!-- Комментарии -->
@@ -86,14 +88,16 @@
                                     </div>
                                 </div>
                                 <p class="mt-2 mb-0">{{ comment.content|markdown }}</p>
-                                <div class="d-flex justify-content-end gap-2 mt-2">
-                                    <a href="{% url 'journal:comment_update' comment.pk %}" class="btn btn-sm btn-outline-primary" title="Редактировать комментарий">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'journal:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger" title="Удалить комментарий">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                </div>
+                                {% if request.user.is_authenticated and is_admin or request.user.is_authenticated and comment.author_name == request.user %}
+                                    <div class="d-flex justify-content-end gap-2 mt-2">
+                                        <a href="{% url 'journal:comment_update' comment.pk %}" class="btn btn-sm btn-outline-primary" title="Редактировать комментарий">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'journal:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger" title="Удалить комментарий">
+                                            <i class="bi bi-x-lg"></i>
+                                        </a>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
@@ -111,7 +115,7 @@
                                 {{ request.user.username }}
                             </a>
                         {% else %}
-                            Anonymous
+                            Anonymous/Deleted User
                             <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="ms-2 text-decoration-none">Войти</a>
                         {% endif %}
                     </p>

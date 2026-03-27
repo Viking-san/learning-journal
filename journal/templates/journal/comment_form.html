@@ -13,11 +13,16 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">Имя автора</label>
-                        {{ form.author_name }}
-                        {% if form.author_name.errors %}
-                            <div class="text-danger">{{ form.author_name.errors }}</div>
-                        {% endif %}
+                        <label class="form-label">Автор комментария</label>
+                        <div class="form-text" style="font-size: 1.05rem;">
+                            {% if form.instance.author_name %}
+                                <a href="{% url 'journal:author_entries' form.instance.author_name.username %}" class="text-decoration-none">
+                                    {{ form.instance.author_name.username }}
+                                </a>
+                            {% else %}
+                                Anonymous/Deleted
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Комментарий</label>

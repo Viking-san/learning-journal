@@ -97,6 +97,7 @@ class EntryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['comments'] = self.object.comments.all()
         context['form'] = CommentForm()
+
         return context
 
     def post(self, request, *args, **kwargs):
