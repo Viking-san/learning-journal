@@ -176,3 +176,5 @@ USE_CDN = config('USE_CDN', default=True, cast=bool)
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

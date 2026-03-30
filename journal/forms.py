@@ -1,6 +1,8 @@
 from django import forms
 from .models import Entry, Comment
 from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
+from django.contrib.auth.forms import PasswordResetForm as DjangoPasswordResetForm
+from django.contrib.auth.forms import SetPasswordForm as DjangoSetPasswordForm
 
 
 class PasswordChangeForm(DjangoPasswordChangeForm):
@@ -11,6 +13,27 @@ class PasswordChangeForm(DjangoPasswordChangeForm):
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'form-control')
         self.fields['old_password'].label = 'Текущий пароль'
+        self.fields['new_password1'].label = 'Новый пароль'
+        self.fields['new_password2'].label = 'Подтверждение нового пароля'
+
+
+class PasswordResetForm(DjangoPasswordResetForm):
+    """Та же логика, что у стандартной формы Django, с Bootstrap-классами для полей."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
+        self.fields['email'].label = 'Электронная почта'
+
+
+class SetPasswordForm(DjangoSetPasswordForm):
+    """Та же логика, что у стандартной формы Django, с Bootstrap-классами для полей."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
         self.fields['new_password1'].label = 'Новый пароль'
         self.fields['new_password2'].label = 'Подтверждение нового пароля'
 
