@@ -24,6 +24,7 @@ CSRF_TRUSTED_ORIGINS = [x for x in config('CSRF_TRUSTED_ORIGINS', default='').sp
 # Application definition
 
 INSTALLED_APPS = [
+    'journal',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,7 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'journal'
 ]
 
 MIDDLEWARE = [

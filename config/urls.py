@@ -19,6 +19,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from journal.views import SignUpView
+from journal.forms import PasswordChangeForm
+
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +29,10 @@ urlpatterns = [
     path('', include('journal.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/signup/', SignUpView.as_view(), name='signup'),
+
+    path('password-change/', auth_views.PasswordChangeView.as_view(
+            form_class=PasswordChangeForm), name='password_change'),
+    path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
 ]
 
 if settings.DEBUG:

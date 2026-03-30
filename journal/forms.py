@@ -1,5 +1,18 @@
 from django import forms
 from .models import Entry, Comment
+from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
+
+
+class PasswordChangeForm(DjangoPasswordChangeForm):
+    """Та же логика, что у стандартной формы Django, с Bootstrap-классами для полей."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
+        self.fields['old_password'].label = 'Текущий пароль'
+        self.fields['new_password1'].label = 'Новый пароль'
+        self.fields['new_password2'].label = 'Подтверждение нового пароля'
 
 
 class EntryForm(forms.ModelForm):
@@ -35,13 +48,12 @@ class EntryForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        # fields = ['author_name', 'content']
         fields = ['content']
         widgets = {
-            'author_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ваше имя',
-            }),
+            # 'author_name': forms.TextInput(attrs={
+            #     'class': 'form-control',
+            #     'placeholder': 'Ваше имя',
+            # }),
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
                 'placeholder': 'Текст комментария',
