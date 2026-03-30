@@ -20,6 +20,23 @@
             background-color: #2b3035 !important;
         }
         
+        /* Пользовательское меню в navbar: зелёная кнопка, тёмный hover */
+        .navbar-custom .user-menu-toggle {
+            background-color: #198754;
+            border-color: #198754;
+            color: #ffffff;
+        }
+
+        .navbar-custom .user-menu-toggle:hover,
+        .navbar-custom .user-menu-toggle:focus,
+        .navbar-custom .user-menu-toggle:active,
+        .navbar-custom .user-menu-toggle.show {
+            background-color: #2b3035;
+            border-color: #198754;
+            color: #198754;
+            box-shadow: none;
+        }
+        
         /* Уменьшаем размеры Markdown заголовков */
         .card-text h1 {
             font-size: 1.75rem;
@@ -87,14 +104,26 @@
                 </form>
                 <div class="d-flex align-items-center gap-2">
                     {% if request.user.is_authenticated %}
-                        <a href="{% url 'journal:author_entries' request.user.username %}" class="navbar-text text-decoration-none text-light"
-                           style="font-size: 1.2em; font-weight: 300; color: rgba(248,249,250,0.95);">
-                            {{ request.user.username }}
-                        </a>
-                        <form method="post" action="{% url 'logout' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Выйти</button>
-                        </form>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-success dropdown-toggle user-menu-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ request.user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'journal:author_entries' request.user.username %}">Мои записи</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'password_change' %}">Сменить пароль</a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" class="m-0">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">Выход</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-sm btn-success">Войти</a>
                         <a href="{% url 'signup' %}" class="btn btn-sm btn-primary">Регистрация</a>
