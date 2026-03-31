@@ -89,6 +89,10 @@ class EntryForm(forms.ModelForm):
             'is_published': 'Опубликовать',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['is_published'].initial = True
+
 
 class CommentForm(forms.ModelForm):
     class Meta:

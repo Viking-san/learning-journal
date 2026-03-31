@@ -1,7 +1,7 @@
 from ..models import Category, Entry, Tag
-from ..forms import EntryForm, CommentForm
+from ..forms import EntryForm, CommentForm, CustomUserCreationForm
 from django.test import TestCase
-
+from django.contrib.auth.models import User
 
 
 class EntryFormTest(TestCase):
@@ -80,4 +80,29 @@ class CommentFormTest(TestCase):
             'author_name': 'Anon',
         }
         form = CommentForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+
+class CustomUserCreationFormTest(TestCase):
+    def test_form_is_valid(self):
+        """Проверка валидности формы"""
+        form_data = {
+            'username': 'test',
+            'email': 'email@example.com',
+            'password1': 'pass123',
+            'password2': 'pass123',
+        }
+        form = CustomUserCreationForm(data=form_data)        
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(User.objects.get(username='test').email, 'email@example.com')
+
+    def test_form_without_required_fields(self):
+        """Проверка ошибки формы если забыть обязательные поля"""
+        form_data = {
+            'username': 'test',
+            'password1': 'pass123',
+            'password2': 'pass123',
+        }
+        form = CustomUserCreationForm(data=form_data)        
         self.assertFalse(form.is_valid())
