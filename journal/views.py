@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView, View
 from .models import Entry, Category, EntryLog, Tag, Comment
-from .forms import EntryForm, CommentForm
+from .forms import EntryForm, CommentForm, CustomUserCreationForm
 from django.urls import reverse_lazy
 from django.db.models import Count, Q
 from django.db.models.functions import TruncWeek, TruncDate
@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 
 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'registration/signup.html'
 

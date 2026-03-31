@@ -21,6 +21,9 @@
             <button type="submit" class="btn btn-primary">Войти</button>
         </form>
         <p class="mt-3 small text-muted">
+            Забыли пароль? <a href="{% url 'password_reset' %}">Сброс</a>
+        </p>
+        <p class="mt-3 small text-muted">
             Нет аккаунта? <a href="{% url 'signup' %}">Зарегистрироваться</a>
         </p>
     </div>
