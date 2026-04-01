@@ -26,6 +26,12 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].label = 'Подтверждение пароля'
         self.fields['email'].label = 'Электронная почта'
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Этот email уже используется')
+        return email
+
 
 class PasswordChangeForm(DjangoPasswordChangeForm):
     """Та же логика, что у стандартной формы Django, с Bootstrap-классами для полей."""

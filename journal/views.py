@@ -85,7 +85,7 @@ class PublishDraftView(LoginRequiredMixin, View):
             entry.save()
 
         return redirect('journal:entry_detail', pk=pk)
-
+    
 
 class EntryDetailView(DetailView):
     model = Entry
