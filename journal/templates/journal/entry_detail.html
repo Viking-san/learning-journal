@@ -55,6 +55,8 @@
                 <!-- Контент -->
                 <div class="card-text">{{ entry.content|markdown }}</div>
 
+                <a href="{% url 'journal:export_entry' entry.pk %}" class="btn btn-outline-secondary btn-sm">Скачать</a>
+
                 {% if is_admin or request.user.is_authenticated and entry.author == request.user %}
                     <div class="d-flex gap-2 mt-3">
                         <a href="{% url 'journal:entry_update' entry.pk %}" class="btn btn-outline-primary btn-sm">Редактировать</a>

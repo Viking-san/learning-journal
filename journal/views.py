@@ -15,6 +15,31 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+import frontmatter
+from urllib.parse import quote
+from django.utils.text import slugify
+
+
+def export_entry(request, pk):
+    entry = get_object_or_404(Entry, pk=pk)
+
+    filename = f'{slugify(entry.title, allow_unicode=True)}.md'
+    encoded_title = quote(filename)
+
+    # metadata
+    title=entry.title
+    category = entry.category.name
+    tags = [tag.name for tag in entry.tags.all()]
+    
+    md_content = entry.content
+    post = frontmatter.Post(md_content, tags=tags, category=category, title=title)
+    md_content = frontmatter.dumps(post)
+
+    # Отправляем как файл
+    response = HttpResponse(md_content, content_type='text/markdown')
+    response['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_title}"
+    return response
 
 
 class SignUpView(CreateView):
