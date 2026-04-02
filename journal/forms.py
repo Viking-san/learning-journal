@@ -7,6 +7,14 @@ from django.contrib.auth.forms import SetPasswordForm as DjangoSetPasswordForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+
+class ImportEntryForm(forms.Form):
+    md_file = forms.FileField(
+        label='Markdown файл',
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.md'})
+    )
+
+
 class CustomUserCreationForm(UserCreationForm):
     """Расширенная форма для регистрации с email"""
     email = forms.EmailField(required=True)
@@ -105,10 +113,6 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['content']
         widgets = {
-            # 'author_name': forms.TextInput(attrs={
-            #     'class': 'form-control',
-            #     'placeholder': 'Ваше имя',
-            # }),
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
                 'placeholder': 'Текст комментария',

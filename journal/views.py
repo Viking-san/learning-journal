@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView, View
 from .models import Entry, Category, EntryLog, Tag, Comment
-from .forms import EntryForm, CommentForm, CustomUserCreationForm
+from .forms import EntryForm, CommentForm, CustomUserCreationForm, ImportEntryForm
 from django.urls import reverse_lazy
 from django.db.models import Count, Q
 from django.db.models.functions import TruncWeek, TruncDate
@@ -19,6 +19,8 @@ from django.http import HttpResponse
 import frontmatter
 from urllib.parse import quote
 from django.utils.text import slugify
+from django.views.generic import FormView
+from django.contrib import messages
 
 
 def export_entry(request, pk):
@@ -142,12 +144,76 @@ class EntryDetailView(DetailView):
         context = self.get_context_data()
         context['form'] = form
         return self.render_to_response(context)
+    
+
+class ImportEntryView(LoginRequiredMixin, FormView):
+    form_class = ImportEntryForm
+    success_url = reverse_lazy('journal:entry_list')
+
+    def get(self, request, *args, **kwargs):
+        return redirect('journal:entry_create')
+
+    def form_valid(self, form):
+        try:
+            # Читаем файл
+            md_file = self.request.FILES['md_file']
+            md_content = md_file.read().decode('utf-8')
+            post = frontmatter.loads(md_content)
+
+            # передаем данные в форму через session для get_initial
+            self.request.session['import_content'] = post.content
+            self.request.session['import_metadata'] = post.metadata
+            return redirect('journal:entry_create')
+
+        except Exception as e:
+            messages.error(self.request, f"Ошибка при импорте файла")
+            return redirect('journal:entry_create')
+        
+
+    def form_invalid(self, form):
+        return redirect('journal:entry_create')
 
 
 class EntryCreateView(LoginRequiredMixin, CreateView):
     model = Entry
     form_class = EntryForm
     template_name = 'journal/entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['import_form'] = ImportEntryForm()
+        return context
+    
+    def get_initial(self):
+        initial = super().get_initial()
+
+        metadata = self.request.session.pop('import_metadata', None)
+        content = self.request.session.pop('import_content', None)
+        
+        if metadata:
+            if metadata.get('title'):
+                initial['title'] = metadata['title']
+
+            metadata_category = metadata.get('category')
+            if metadata_category:
+                category = Category.objects.filter(name=metadata_category).first()
+                if category:
+                    initial['category'] = category
+                else:
+                    messages.info(self.request, f"Категория '{metadata_category}' не найдена, выберите вручную")
+
+            metadata_tags = metadata.get('tags')
+            if metadata_tags:
+                existing_tags = Tag.objects.filter(name__in=metadata['tags'])
+                initial['tags'] = existing_tags
+                if len(existing_tags) != len(metadata_tags):
+                    difference_set = set(metadata_tags) - {tag.name for tag in existing_tags}
+                    messages.info(self.request, f"Следующие теги не найдены: {', '.join(map(str, difference_set))}")
+
+        if content:
+            initial['content'] = content
+        
+        return initial
 
     def form_valid(self, form):
         form.instance.author = self.request.user
