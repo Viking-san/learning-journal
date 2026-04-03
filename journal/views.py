@@ -78,7 +78,7 @@ class EntryListView(ListView):
             entry_count=Count('entries')
         )
         context['total_entries'] = Entry.objects.published().count()
-        context['tags'] = Tag.objects.all()
+        context['tags'] = Tag.objects.popular()
         return context
 
     
@@ -168,7 +168,6 @@ class ImportEntryView(LoginRequiredMixin, FormView):
         except Exception as e:
             messages.error(self.request, f"Ошибка при импорте файла")
             return redirect('journal:entry_create')
-        
 
     def form_invalid(self, form):
         return redirect('journal:entry_create')
@@ -290,7 +289,7 @@ class CategoryEntriesView(ListView):
         )
         context['current_category'] = self.category
         context['total_entries'] = Entry.objects.published().count()
-        context['tags'] = Tag.objects.all()
+        context['tags'] = Tag.objects.popular()
         return context
     
 
@@ -313,7 +312,7 @@ class TagEntriesView(ListView):
         )
         context['total_entries'] = Entry.objects.published().count()
         context['current_tag'] = self.tag
-        context['tags'] = Tag.objects.all()
+        context['tags'] = Tag.objects.popular()
         return context
 
 
@@ -335,7 +334,7 @@ class AuthorEntriesView(ListView):
         )
         context['total_entries'] = Entry.objects.published().filter(author=self.author).count()
         context['current_author'] = self.author
-        context['tags'] = Tag.objects.all()
+        context['tags'] = Tag.objects.popular()
         return context
 
 

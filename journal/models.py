@@ -25,11 +25,21 @@ class Category(models.Model):
         return self.name
 
 
+from django.db.models import Count, Q
+
+
+class TagQuerySet(models.QuerySet):
+    def popular(self, limit=20):
+        return self.annotate(count=Count('entries', filter=Q(entries__is_published=True))).order_by('-count')[:limit]
+
+
 class Tag(models.Model):
     """Тег для записей"""
     name = models.CharField(max_length=50, unique=True, verbose_name='Название')
     slug = models.SlugField(unique=True, blank=True, verbose_name='Slug')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    objects = TagQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Тег'
@@ -63,7 +73,6 @@ class EntryQuerySet(models.QuerySet):
 
     def with_full_details(self):
         return self.select_related('category', 'author').prefetch_related('tags', 'comments', 'comments__author_name')
-
 
 
 class Entry(models.Model):

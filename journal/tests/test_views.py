@@ -3,8 +3,7 @@ from ..models import Category, Entry, Tag
 from ..views import EntryListView, DraftListView
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 
 
 class EntryListViewTest(TestCase):
