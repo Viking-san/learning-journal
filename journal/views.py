@@ -7,7 +7,7 @@ from django.db.models import Count, Q
 from django.db.models.functions import TruncWeek, TruncDate
 from datetime import timedelta, datetime
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import EntrySerializer, CategorySerializer, TagSerializer
 from django.utils import timezone
 from collections import defaultdict
@@ -461,7 +461,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     # Не забудь что objects показывает все, а published только опубликованное
     queryset = Entry.objects.select_related('category').prefetch_related('tags').order_by('-created_at')
     serializer_class = EntrySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     filterset_fields = ['category', 'tags']
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'updated_at', 'title']
@@ -471,11 +471,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """API endpoint для категорий"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 class TagViewSet(viewsets.ModelViewSet):
     """API endpoint для тегов"""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]

@@ -8,51 +8,13 @@
 
 <!-- extra_css СНАРУЖИ content -->
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10/public/assets/styles/choices.min.css">
 {% if USE_CDN %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 {% else %}
     <link rel="stylesheet" href="{% static 'journal/css/easymde.min.css' %}">
 {% endif %}
 <style>
-    #id_tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        list-style: none;
-        padding: 0;
-    }
-    
-    #id_tags li {
-        display: inline-block;
-    }
-    
-    #id_tags input[type="checkbox"] {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-    
-    #id_tags label {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        background-color: #6c757d;
-        color: white;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin: 0;
-        user-select: none;
-    }
-    
-    #id_tags label:hover {
-        background-color: #5a6268;
-        transform: scale(1.05);
-    }
-    
-    #id_tags label:has(input:checked) {
-        background-color: #28a745 !important;
-    }
-
     /* Опубликовано — стиль как у тегов */
     .is-published-pill {
         display: inline-block;
@@ -230,13 +192,80 @@
 
 
 {% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js@10/public/assets/scripts/choices.min.js"></script>
 {% if USE_CDN %}
     <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 {% else %}
     <script src="{% static 'journal/js/easymde.min.js' %}"></script>
 {% endif %}
 <script>
+
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Новые теги
+    const tagsSelect = document.getElementById('id_tags');
+    if (tagsSelect) {
+        const choices = new Choices(tagsSelect, {
+            removeItemButton: true,
+            searchPlaceholderValue: 'Поиск тега...',
+            noResultsText: 'Теги не найдены',
+            noChoicesText: 'Нет доступных тегов',
+            allowHTML: false,
+        });
+
+        // Добавляем кнопку "Создать тег" под полем
+        const createBtn = document.createElement('button');
+        createBtn.type = 'button';
+        createBtn.className = 'btn btn-sm btn-outline-success mt-2';
+        createBtn.textContent = '+ Создать тег';
+        createBtn.style.display = 'none';
+        tagsSelect.closest('.choices').after(createBtn);
+
+        // Показываем кнопку когда есть текст в поиске
+        const choicesInput = tagsSelect.closest('.choices').querySelector('input');
+        if (choicesInput) {
+            choicesInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                const exists = [...tagsSelect.options].some(
+                    o => o.text.toLowerCase() === query.toLowerCase()
+                );
+                if (query && !exists) {
+                    createBtn.textContent = `+ Создать тег "${query}"`;
+                    createBtn.style.display = 'inline-block';
+                } else {
+                    createBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Создаём тег по клику на кнопку
+        createBtn.addEventListener('click', async function() {
+            const query = choicesInput.value.trim();
+            if (!query) return;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const response = await fetch('/api/tags/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({name: query})
+            });
+
+            if (response.ok) {
+                const tag = await response.json();
+                choices.setChoices([{value: String(tag.id), label: tag.name}], 'value', 'label', false);
+                choices.setChoiceByValue(String(tag.id));
+                choicesInput.value = '';
+                createBtn.style.display = 'none';
+                choices.clearInput();
+                choices.showDropdown();
+            }
+        });
+    }
+
     let easyMDE = null;  // <- переместили СЮДА, до всех if
     const contentTextarea = document.getElementById('id_content');
     
@@ -264,28 +293,28 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         });
     }
-    
+
     // Стилизация тегов
-    const tagsList = document.getElementById('id_tags');
-    if (!tagsList) return;
+    // const tagsList = document.getElementById('id_tags');
+    // if (!tagsList) return;
     
-    tagsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        const label = checkbox.parentElement.querySelector('label') || 
-                      checkbox.nextElementSibling ||
-                      checkbox.previousElementSibling;
+    // tagsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    //     const label = checkbox.parentElement.querySelector('label') || 
+    //                   checkbox.nextElementSibling ||
+    //                   checkbox.previousElementSibling;
         
-        if (label && label.tagName === 'LABEL') {
-            if (checkbox.checked) {
-                label.classList.add('active');
-            }
+    //     if (label && label.tagName === 'LABEL') {
+    //         if (checkbox.checked) {
+    //             label.classList.add('active');
+    //         }
             
-            label.addEventListener('click', function(e) {
-                e.preventDefault();
-                checkbox.checked = !checkbox.checked;
-                label.classList.toggle('active');
-            });
-        }
-    });
+    //         label.addEventListener('click', function(e) {
+    //             e.preventDefault();
+    //             checkbox.checked = !checkbox.checked;
+    //             label.classList.toggle('active');
+    //         });
+    //     }
+    // });
 });
 
 // Блокировка кнопки после отправки формы

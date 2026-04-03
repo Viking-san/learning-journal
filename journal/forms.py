@@ -91,7 +91,7 @@ class EntryForm(forms.ModelForm):
             'category': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            'tags': forms.CheckboxSelectMultiple(),
+            'tags': forms.SelectMultiple(),
             'image': forms.FileInput(attrs={
                 'class': 'form-control'
             }),
