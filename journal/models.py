@@ -1,6 +1,7 @@
 from tabnanny import verbose
 from django.db import models
 from django.utils.text import slugify
+from pytils.translit import slugify as pytils_slugify
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 
@@ -19,7 +20,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = pytils_slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -46,7 +47,7 @@ class Tag(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = pytils_slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
