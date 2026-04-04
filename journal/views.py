@@ -171,6 +171,9 @@ class ImportEntryView(LoginRequiredMixin, FormView):
             return redirect('journal:entry_create')
 
     def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.info(self.request, f"{field}: {error}")
         return redirect('journal:entry_create')
 
 

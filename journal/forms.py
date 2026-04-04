@@ -13,6 +13,12 @@ class ImportEntryForm(forms.Form):
         label='Markdown файл',
         widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.md,.txt'})
     )
+    
+    def clean_md_file(self):
+        file = self.cleaned_data['md_file']
+        if file.size > 256 * 1024:  # 256KB
+            raise forms.ValidationError('Файл слишком большой. Max size 256KB')
+        return file
 
 
 class CustomUserCreationForm(UserCreationForm):
