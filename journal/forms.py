@@ -113,6 +113,12 @@ class EntryForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['is_published'].initial = True
 
+    def clean_image(self):
+        file = self.cleaned_data['image']
+        if file and file.size > 2 * 1024 * 1024:  # 2MB
+            raise forms.ValidationError('Файл слишком большой. Max picture size 2MB')
+        return file
+
 
 class CommentForm(forms.ModelForm):
     class Meta:
