@@ -80,7 +80,7 @@ class UploadFileTest(TestCase):
         messages = list(response.wsgi_request._messages)
 
         self.assertEqual(len(messages), 2)
-        self.assertEqual("Категория 'Error' не найдена, выберите вручную", str(messages[0]))
+        self.assertEqual("Категория 'Error' не найдена, выберите из существующих.", str(messages[0]))
         self.assertIn("Следующие теги не найдены:", str(messages[1]))
         self.assertIn("error tag", str(messages[1]))
         self.assertIn("second error tag", str(messages[1]))
