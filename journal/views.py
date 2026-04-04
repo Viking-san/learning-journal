@@ -31,11 +31,12 @@ def export_entry(request, pk):
 
     # metadata
     title=entry.title
+    author=entry.author.username
     category = entry.category.name
     tags = [tag.name for tag in entry.tags.all()]
     
     md_content = entry.content
-    post = frontmatter.Post(md_content, tags=tags, category=category, title=title)
+    post = frontmatter.Post(md_content, tags=tags, category=category, title=title, author=author)
     md_content = frontmatter.dumps(post)
 
     # Отправляем как файл
@@ -166,7 +167,7 @@ class ImportEntryView(LoginRequiredMixin, FormView):
             return redirect('journal:entry_create')
 
         except Exception as e:
-            messages.error(self.request, f"Ошибка при импорте файла")
+            messages.info(self.request, f"Ошибка при импорте файла: {str(e)}")
             return redirect('journal:entry_create')
 
     def form_invalid(self, form):
@@ -199,7 +200,7 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
                 if category:
                     initial['category'] = category
                 else:
-                    messages.info(self.request, f"Категория '{metadata_category}' не найдена, выберите вручную")
+                    messages.info(self.request, f"Категория '{metadata_category}' не найдена, выберите из существующих.")
 
             metadata_tags = metadata.get('tags')
             if metadata_tags:
@@ -207,7 +208,8 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
                 initial['tags'] = existing_tags
                 if len(existing_tags) != len(metadata_tags):
                     difference_set = set(metadata_tags) - {tag.name for tag in existing_tags}
-                    messages.info(self.request, f"Следующие теги не найдены: {', '.join(map(str, difference_set))}")
+                    messages.info(self.request, f"Следующие теги не найдены: {', '.join(map(str, difference_set))}." \
+                                  " Создайте их вручную в поле Теги")
 
         if content:
             initial['content'] = content

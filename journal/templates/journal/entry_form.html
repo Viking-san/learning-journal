@@ -161,6 +161,15 @@
         font-size: 1.1rem !important;
     }
 
+    /* Стили для tooltip */
+    .tooltip-inner {
+        text-align: left;
+        max-width: 600px;
+        white-space: pre-wrap;
+        background-color: rgb(0, 0, 0);
+        color: rgb(200, 200, 200);
+    }
+
 </style>
 {% endblock %}
 
@@ -179,6 +188,11 @@
                     <label class="form-label">Импорт записи</label>
                     {{ import_form.md_file }}
                     <button type="submit" class="btn btn-primary">Импортировать</button>
+                    <i id="uploadTooltip"
+                        class="bi bi-question-circle ms-2"
+                        data-bs-toggle="tooltip"
+                        data-bs-html="true">
+                    </i>
                 </form>
                 <hr>
                 {% endif %}
@@ -411,6 +425,31 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         });
     }
+});
+
+// Инициализация Bootstrap tooltips
+const tooltipText = "Для загрузки файлов подходят текстовые документы(txt/md)<br>\
+Содержимое файла отобразится в поле Содержание создаваемой записи.<br>\
+Если файл будет заполнен с YAML frontmatter в начале, то автоматически могут заполниться Заголовок/Категория/Теги.<br>\
+Пример формата:<br>\
+<code class='text-info'>---<br>\
+category: Test<br>\
+tags:<br>\
+- tests<br>\
+- upload<br>\
+title: Заголовок записи<br>\
+---<br>\
+А этот текст уже попадет в Содежимое записи.</code>";
+
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(function (el) {
+    if (el.id === 'uploadTooltip') {
+        return new bootstrap.Tooltip(el, {
+            title: tooltipText,
+            html: true
+        });
+    }
+    return new bootstrap.Tooltip(el);
 });
 
 // Блокировка кнопки после отправки формы

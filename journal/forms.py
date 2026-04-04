@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 class ImportEntryForm(forms.Form):
     md_file = forms.FileField(
         label='Markdown файл',
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.md'})
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.md,.txt'})
     )
 
 
