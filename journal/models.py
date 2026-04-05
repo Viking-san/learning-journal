@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from pytils.translit import slugify as pytils_slugify
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
+from .tools import validate_img_size
 
 
 class Category(models.Model):
@@ -92,8 +93,14 @@ class Entry(models.Model):
         related_name='entries',
         verbose_name="Категория"
     )
+
     tags = models.ManyToManyField(Tag, blank=True, related_name='entries', verbose_name='Теги')
-    image = models.ImageField(upload_to='entries/%Y/%m', blank=True, null=True, verbose_name='Изображение')
+    image = models.ImageField(
+        upload_to='entries/%Y/%m', 
+        validators=[validate_img_size], 
+        blank=True, 
+        null=True, 
+        verbose_name='Изображение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
     is_published = models.BooleanField(default=True, verbose_name='Опубликовано')
@@ -103,7 +110,7 @@ class Entry(models.Model):
     class Meta:
         verbose_name = "Запись"
         verbose_name_plural = "Записи"
-        ordering = ['-created_at']  # Новые записи сверху
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title

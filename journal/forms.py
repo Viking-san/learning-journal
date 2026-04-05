@@ -6,6 +6,7 @@ from django.contrib.auth.forms import PasswordResetForm as DjangoPasswordResetFo
 from django.contrib.auth.forms import SetPasswordForm as DjangoSetPasswordForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .constants import MAX_IMAGE_SIZE, MAX_MD_FILE_SIZE, MAX_IMAGE_SIZE_ERROR, MAX_MD_FILE_SIZE_ERROR
 
 
 class ImportEntryForm(forms.Form):
@@ -16,8 +17,8 @@ class ImportEntryForm(forms.Form):
     
     def clean_md_file(self):
         file = self.cleaned_data['md_file']
-        if file.size > 256 * 1024:  # 256KB
-            raise forms.ValidationError('Файл слишком большой. Max size 256KB')
+        if file.size > MAX_MD_FILE_SIZE:
+            raise forms.ValidationError(MAX_MD_FILE_SIZE_ERROR)
         return file
 
 
@@ -115,8 +116,8 @@ class EntryForm(forms.ModelForm):
 
     def clean_image(self):
         file = self.cleaned_data['image']
-        if file and file.size > 2 * 1024 * 1024:  # 2MB
-            raise forms.ValidationError('Файл слишком большой. Max picture size 2MB')
+        if file and file.size > MAX_IMAGE_SIZE:  # 2MB
+            raise forms.ValidationError(MAX_IMAGE_SIZE_ERROR)
         return file
 
 

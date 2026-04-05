@@ -89,10 +89,10 @@ class CustomUserCreationFormTest(TestCase):
         form_data = {
             'username': 'test',
             'email': 'email@example.com',
-            'password1': 'pass123',
-            'password2': 'pass123',
+            'password1': 'pass123123',
+            'password2': 'pass123123',
         }
-        form = CustomUserCreationForm(data=form_data)        
+        form = CustomUserCreationForm(data=form_data)
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(User.objects.get(username='test').email, 'email@example.com')
@@ -101,8 +101,30 @@ class CustomUserCreationFormTest(TestCase):
         """Проверка ошибки формы если забыть обязательные поля"""
         form_data = {
             'username': 'test',
-            'password1': 'pass123',
-            'password2': 'pass123',
+            'password1': 'pass123123',
+            'password2': 'pass123123',
         }
         form = CustomUserCreationForm(data=form_data)        
+        self.assertFalse(form.is_valid())
+
+    def test_form_with_invalid_passwords(self):
+        """Проверка ошибки формы если ввести короктий или не одинаковый пароль"""
+        form_data = {
+            'username': 'test',
+            'email': 'email@example.com',
+            'password1': 'pass123123',
+            'password2': '123',
+        }
+        form = CustomUserCreationForm(data=form_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['password2'], ['The two password fields didn’t match.'])
+
+        form_data = {
+            'username': 'test',
+            'email': 'email@example.com',
+            'password1': '1',
+            'password2': '1',
+        }
+        form = CustomUserCreationForm(data=form_data)
         self.assertFalse(form.is_valid())
