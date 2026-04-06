@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from pytils.translit import slugify as pytils_slugify
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
-from .tools import validate_img_size
+from .tools import validate_img_size, wrapper_upload_to
 
 
 class Category(models.Model):
@@ -96,7 +96,7 @@ class Entry(models.Model):
 
     tags = models.ManyToManyField(Tag, blank=True, related_name='entries', verbose_name='Теги')
     image = models.ImageField(
-        upload_to='entries/%Y/%m', 
+        upload_to=wrapper_upload_to, 
         validators=[validate_img_size], 
         blank=True, 
         null=True, 

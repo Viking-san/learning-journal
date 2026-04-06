@@ -3,6 +3,8 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Entry, EntryLog
+from django.contrib.auth.models import Group, Permission
+from django.db.models.signals import post_migrate
 
 
 # Логирование активности записей
@@ -27,3 +29,14 @@ def log_entry_delete(sender, instance, **kwargs):
         changed_entry_id=instance.id
     )
     print(f'[log] {instance.title} - deleted')
+
+
+# Создать группу администраторов и заполнить её всеми доступными разрешениями
+@receiver(post_migrate)
+def create_groups(sender, **kwargs):
+    if sender.name != 'journal':
+        return
+    
+    group, _ = Group.objects.get_or_create(name='Administrator')
+    all_permissions = Permission.objects.all()
+    group.permissions.set(all_permissions)

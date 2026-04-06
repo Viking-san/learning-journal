@@ -21,7 +21,15 @@ DATABASES = {
 # django-storages — библиотека которая умеет работать с S3/MinIO
 # Все загружаемые пользователем файлы (картинки) будут идти туда
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
 
 AWS_ACCESS_KEY_ID = config('MINIO_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = config('MINIO_SECRET_KEY')
@@ -30,6 +38,8 @@ AWS_S3_ENDPOINT_URL = config('MINIO_ENDPOINT_URL')  # http://minio:9000 внут
 AWS_S3_USE_SSL = False  # внутри Docker сети SSL не нужен
 AWS_DEFAULT_ACL = 'public-read'  # файлы публично доступны (нам так и нужно)
 AWS_QUERYSTRING_AUTH = False  # URL без подписи — просто прямая ссылка на файл
+AWS_S3_CUSTOM_DOMAIN = config('MINIO_CUSTOM_DOMAIN')
+AWS_S3_URL_PROTOCOL = 'http:'
 
 # Откуда браузер будет грузить медиафайлы
 # Это будет публичный URL через nginx, не прямой MinIO порт

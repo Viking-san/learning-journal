@@ -1,8 +1,9 @@
 services:
-  web:
+  web_local:
     build: .
     command: >
       sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
              python manage.py runserver 0.0.0.0:32768"
     volumes:
       - ./db.sqlite3:/app/db.sqlite3

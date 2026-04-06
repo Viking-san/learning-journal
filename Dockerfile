@@ -15,6 +15,7 @@ COPY . .
 # Аргумент сборки — нужен только для collectstatic
 ARG SECRET_KEY=dummy-secret-key-for-build
 ENV SECRET_KEY=$SECRET_KEY
+ENV DJANGO_SETTINGS_MODULE=config.settings.base
 
 # Собираем статику
 RUN python manage.py collectstatic --noinput
