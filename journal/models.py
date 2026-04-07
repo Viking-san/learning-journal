@@ -29,7 +29,7 @@ class Category(models.Model):
 
 
 class TagQuerySet(models.QuerySet):
-    def popular(self, limit=5):
+    def popular(self, limit=50):
         return self.annotate(count=Count('entries', filter=Q(entries__is_published=True))).order_by('-count')[:limit]
 
 
