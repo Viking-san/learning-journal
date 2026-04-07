@@ -33,7 +33,20 @@ class CategoryModelTest(TestCase):
         Category.objects.create(name='B second')
 
         names = list(Category.objects.values_list('name', flat=True))
-        self.assertEqual(names, ['A first', 'B second', 'Test Category', 'Z last'])
+        self.assertEqual(
+            names,
+            ['A first',
+            'B second',
+            'General',
+            'Test',
+            'Test Category',
+            'Z last',
+            'Идея',
+            'Личное',
+            'Обучение',
+            'Проблема',
+            'Работа']
+        )
 
 
 class TagModelTest(TestCase):
@@ -69,7 +82,7 @@ class EntryModelTest(TestCase):
 
     def setUp(self):
         """Подготовка данных перед каждым тестом"""
-        self.category = Category.objects.create(name='Test')
+        self.category = Category.objects.create(name='Test cat')
         self.tag_a = Tag.objects.create(name='Tag a')
         self.tag_b = Tag.objects.create(name='Tag b')
 

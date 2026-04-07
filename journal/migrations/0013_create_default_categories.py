@@ -19,7 +19,7 @@ def create_categories(apps, schema_editor):
     Category = apps.get_model('journal', 'Category')
     
     for category in CATEGORIES:
-        Category.objects.create(
+        Category.objects.get_or_create(
             name=category,
             slug=pytils_slugify(category)
         )

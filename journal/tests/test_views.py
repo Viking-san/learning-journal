@@ -9,9 +9,9 @@ from django.contrib.auth.models import User, Group
 class EntryListViewTest(TestCase):
     """Тесты для главной страницы"""
     def setUp(self):        
-        self.category = Category.objects.create(name='Test')
+        self.category = Category.objects.create(name='Test cat')
         self.user = User.objects.create_user('test', password='pass')
-        self.admin_group = Group.objects.create(name='Administrator')
+        self.admin_group, _ = Group.objects.get_or_create(name='Administrator')
         self.client.login(username='test', password='pass')
         self.django_entry = Entry.objects.create(
             author=self.user,
@@ -84,7 +84,7 @@ class EntryListViewTest(TestCase):
 class EntryDetailViewTest(TestCase):
     """Тесты для страницы просмотра конкретной записи"""
     def setUp(self):
-        self.category = Category.objects.create(name='Test')
+        self.category = Category.objects.create(name='Test cat')
         self.user = User.objects.create_user('test', password='pass')
         self.client.login(username='test', password='pass')
         self.entry = Entry.objects.create(
@@ -135,7 +135,7 @@ class EntryDetailViewTest(TestCase):
 
 class EntryCreateViewTest(TestCase):
     def setUp(self):
-        self.category = Category.objects.create(name='Test')
+        self.category = Category.objects.create(name='Test cat')
         self.user = User.objects.create_user('test', password='pass')
         self.client.login(username='test', password='pass')
         self.response = self.client.get(reverse('journal:entry_create'))
@@ -186,7 +186,7 @@ class EntryCreateViewTest(TestCase):
 
 class EntryUpdateViewTest(TestCase):
     def setUp(self):
-        self.category = Category.objects.create(name='Test')
+        self.category = Category.objects.create(name='Test cat')
         self.tag = Tag.objects.create(name='test tag')
         self.user = User.objects.create_user('test', password='pass')
         self.client.login(username='test', password='pass')
@@ -248,7 +248,7 @@ class EntryUpdateViewTest(TestCase):
 
     def test_entry_update_admin_permission_user(self):
         """Проверяем что Администратор может редактировать любую запись"""
-        admin_group = Group.objects.create(name='Administrator')
+        admin_group, _ = Group.objects.get_or_create(name='Administrator')
         admin_user = User.objects.create_user('admin_user', password='pass')
         admin_user.groups.add(admin_group)
         self.client.login(username='admin_user', password='pass')
@@ -364,7 +364,7 @@ class DraftListViewTest(TestCase):
 class EntryLogViewTest(TestCase):
     def setUp(self):        
         self.user = User.objects.create_user('test', password='pass')
-        self.admin_group = Group.objects.create(name='Administrator')
+        self.admin_group, _ = Group.objects.get_or_create(name='Administrator')
         self.client.login(username='test', password='pass')
 
     def test_entry_log_block_anonim_user(self):
@@ -390,7 +390,7 @@ class EntryLogViewTest(TestCase):
 class StatsViewTest(TestCase):
     def setUp(self):        
         self.user = User.objects.create_user('test', password='pass')
-        self.admin_group = Group.objects.create(name='Administrator')
+        self.admin_group, _ = Group.objects.get_or_create(name='Administrator')
         self.client.login(username='test', password='pass')
 
     def test_stats_block_anonim_user(self):
