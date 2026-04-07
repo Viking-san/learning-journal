@@ -30,8 +30,11 @@ def export_entry(request, pk):
     encoded_title = quote(filename)
 
     # metadata
-    title=entry.title
-    author=entry.author.username
+    title = entry.title
+    if entry.author:
+        author = entry.author.username
+    else:
+        author = 'Anonymous'
     category = entry.category.name
     tags = [tag.name for tag in entry.tags.all()]
     
