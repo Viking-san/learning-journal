@@ -35,3 +35,7 @@ Thumbs.db
 # Tests
 .coverage
 htmlcov/
+
+# local files
+rebuild_local_container.sh
+docker-compose.local.yml

@@ -12,6 +12,7 @@ services:
       timeout: 5s
       retries: 5
     # Порт не пробрасываем — база не должна быть доступна снаружи Docker сети
+    restart: unless-stopped 
 
   minio:
     image: minio/minio:latest
@@ -33,6 +34,7 @@ services:
       timeout: 5s
       retries: 5
     # Порты тоже не пробрасываем — MinIO доступен только через nginx
+    restart: unless-stopped 
 
   createbuckets:
     image: minio/mc:latest
@@ -73,6 +75,7 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    restart: unless-stopped 
 
   nginx:
     image: nginx:alpine
@@ -87,6 +90,7 @@ services:
     depends_on:
       - web
       - minio
+    restart: unless-stopped 
 
 volumes:
   postgres_data:
