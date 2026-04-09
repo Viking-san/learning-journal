@@ -88,11 +88,16 @@ services:
       - "80:80"
       # Единственный сервис с открытым портом наружу
       # Весь входящий трафик идёт через nginx
+      - "443:443"
+      # для https нужно открыть порт 443, (использует SSL/TLS)
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       # ro — read only, nginx только читает конфиг, не пишет
       - static_volume:/app/staticfiles:ro
       - ./logs/nginx:/var/log/nginx
+      # Храним логи отдельно от docker, чтобы не перезаписывать при обновлении образа nginx
+      - /var/www/certbot:/var/www/certbot:ro
+      # ssl сертификаты хранятся отдельно от docker
     depends_on:
       - web
       - minio
