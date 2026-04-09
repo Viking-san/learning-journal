@@ -93,10 +93,16 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       # ro — read only, nginx только читает конфиг, не пишет
+      
       - static_volume:/app/staticfiles:ro
+
       - ./logs/nginx:/var/log/nginx
       # Храним логи отдельно от docker, чтобы не перезаписывать при обновлении образа nginx
+
       - /var/www/certbot:/var/www/certbot:ro
+      # рабочая папка для проверки сертификатов
+
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       # ssl сертификаты хранятся отдельно от docker
     depends_on:
       - web
