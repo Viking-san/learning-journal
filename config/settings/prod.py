@@ -59,7 +59,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 # Говорит браузеру: всегда используй HTTPS, не пробуй HTTP
 # Включать только когда у тебя реально настроен HTTPS/SSL сертификат!
 # Пока закомментировано — раскомментируешь когда подключишь домен и SSL
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_HSTS_SECONDS = 3600
+# SECURE_SSL_REDIRECT = True # nginx уже редиректит на https, если включить, то он доступ по ip сломается.
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 3600
