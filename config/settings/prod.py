@@ -39,7 +39,7 @@ AWS_S3_USE_SSL = False  # внутри Docker сети SSL не нужен
 AWS_DEFAULT_ACL = 'public-read'  # файлы публично доступны (нам так и нужно)
 AWS_QUERYSTRING_AUTH = False  # URL без подписи — просто прямая ссылка на файл
 AWS_S3_CUSTOM_DOMAIN = config('MINIO_CUSTOM_DOMAIN')
-AWS_S3_URL_PROTOCOL = 'http:'
+# AWS_S3_URL_PROTOCOL = 'http:'
 
 # Откуда браузер будет грузить медиафайлы
 # Это будет публичный URL через nginx, не прямой MinIO порт
