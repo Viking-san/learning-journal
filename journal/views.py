@@ -45,6 +45,15 @@ def export_entry(request, pk):
     # Отправляем как файл
     response = HttpResponse(md_content, content_type='text/markdown')
     response['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_title}"
+
+    # Логируем скачивание
+    EntryLog.objects.create(
+        entry=entry,
+        action='downloaded',
+        entry_title=entry.title,
+        changed_entry_id=entry.pk
+    )
+
     return response
 
 
@@ -396,7 +405,7 @@ class EntryLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             .order_by('date')
         )
 
-        data_by_date = defaultdict(lambda: {'created': 0, 'updated': 0, 'deleted': 0})
+        data_by_date = defaultdict(lambda: {'created': 0, 'updated': 0, 'deleted': 0, 'downloaded': 0})
 
         for item in activity_by_day:
             day = item['date'].strftime('%d.%m')
@@ -406,6 +415,7 @@ class EntryLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['created_counts'] = [data_by_date[d]['created'] for d in context['dates']]
         context['updated_counts'] = [data_by_date[d]['updated'] for d in context['dates']]
         context['deleted_counts'] = [data_by_date[d]['deleted'] for d in context['dates']]
+        context['downloaded_counts'] = [data_by_date[d]['downloaded'] for d in context['dates']]
 
         return context
     

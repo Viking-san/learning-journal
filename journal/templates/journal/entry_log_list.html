@@ -11,7 +11,7 @@
 
         <!-- Статистика -->
         <div class="row mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <h5>Создано всего</h5>
@@ -19,7 +19,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <h5>Обновлено всего</h5>
@@ -27,11 +27,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <h5>Удалено всего</h5>
                         <h2 class="text-danger">{{ stats.deleted|default:0 }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Скачано всего</h5>
+                        <h2 class="text-info">{{ stats.downloaded|default:0 }}</h2>
                     </div>
                 </div>
             </div>
@@ -46,6 +54,7 @@
                         <option value="created" {% if request.GET.action == 'created' %}selected{% endif %}>Создано</option>
                         <option value="updated" {% if request.GET.action == 'updated' %}selected{% endif %}>Обновлено</option>
                         <option value="deleted" {% if request.GET.action == 'deleted' %}selected{% endif %}>Удалено</option>
+                        <option value="downloaded" {% if request.GET.action == 'downloaded' %}selected{% endif %}>Скачано</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -90,6 +99,8 @@
                             <span class="badge bg-warning">Обновлено</span>
                         {% elif log.action == 'deleted' %}
                             <span class="badge bg-danger">Удалено</span>
+                        {% elif log.action == 'downloaded' %}
+                            <span class="badge bg-info">Скачано</span>
                         {% endif %}
                     </td>
                     <td>
@@ -170,6 +181,11 @@ new Chart(ctx, {
                 label: 'Удалено',
                 data: {{ deleted_counts|safe }},
                 borderColor: 'rgb(255, 99, 132)',
+            },
+                        {
+                label: 'Скачано',
+                data: {{ downloaded_counts|safe }},
+                borderColor: 'rgb(13,202,240)',
             }
         ]
     }

@@ -151,6 +151,7 @@ class EntryLog(models.Model):
         ('created', 'Created'),
         ('updated', 'Updated'),
         ('deleted', 'Deleted'),
+        ('downloaded', 'Downloaded'),
     ]    
 
     entry = models.ForeignKey(
