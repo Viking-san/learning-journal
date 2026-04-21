@@ -75,6 +75,12 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -105,8 +111,10 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       # ssl сертификаты хранятся отдельно от docker
     depends_on:
-      - web
-      - minio
+      web:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     restart: unless-stopped 
 
 volumes:
